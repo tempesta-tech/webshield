@@ -12,6 +12,8 @@ __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
+from utils.logger import logger
+
 
 class BaseDetector(metaclass=abc.ABCMeta):
     def __init__(
@@ -22,6 +24,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         block_users_per_iteration: Decimal = Decimal(10),
     ):
         self._access_log = access_log
+        self._default_threshold = default_threshold
         self._threshold = default_threshold
         self._difference_multiplier = difference_multiplier
         self.block_limit_per_check = block_users_per_iteration
@@ -96,10 +99,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         for user in users_after:
             for ip in user.ipv4:
-                if ip not in comparing_table:
-                    continue
-
-                multiplier = user.value / comparing_table[ip]
+                value = comparing_table.get(ip, Decimal(1))
+                multiplier = user.value / value
 
                 if multiplier < self._difference_multiplier:
                     continue
@@ -135,6 +136,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
     def update_threshold(self, users: list[User]):
         if not users:
+            self.threshold = self._default_threshold
             return
 
         values = self.get_values_for_threshold(users)
@@ -143,6 +145,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
             values=values, arithmetic_mean=arithmetic_mean
         )
         self.threshold = arithmetic_mean + standard_deviation
+        logger.debug(f'{self.name()} has new threshold: {self.threshold}')
 
 
 class SQLBasedDetector(BaseDetector):
@@ -166,8 +169,8 @@ class SQLBasedDetector(BaseDetector):
 
         return [
             User(
-                ja5t=user[0],
-                ja5h=user[1],
+                ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
+                ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
                 ipv4=user[2],
                 value=user[3],
                 # type=user[4]
