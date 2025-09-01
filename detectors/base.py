@@ -134,6 +134,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         return [user.value for user in users]
 
     def update_threshold(self, users: list[User]):
+        if not users:
+            return
+
         values = self.get_values_for_threshold(users)
         arithmetic_mean = self.arithmetic_mean(values)
         standard_deviation = self.standard_deviation(
