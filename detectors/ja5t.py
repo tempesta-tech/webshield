@@ -8,7 +8,7 @@ __license__ = "GPL2"
 class Ja5tRPSDetector(IPRPSDetector):
     @staticmethod
     def name() -> str:
-        return "ja5t_rps"
+        return "ja5_rps"
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
@@ -36,7 +36,7 @@ class Ja5tErrorRequestDetector(IPRPSDetector):
 
     @staticmethod
     def name() -> str:
-        return "ja5t_errors"
+        return "ja5_errors"
 
     def get_request(self, start_at, finish_at):
         statuses = ", ".join(list(map(str, self.allowed_statues)))
@@ -62,7 +62,7 @@ class Ja5tAccumulativeTimeDetector(IPRPSDetector):
 
     @staticmethod
     def name() -> str:
-        return "ja5t_accumulative_time"
+        return "ja5_time"
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
