@@ -37,6 +37,7 @@ class CommandLineArgs:
             "-l",
             "--log-level",
             type=str,
+            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
             default="INFO",
             help="Log level",
         )
