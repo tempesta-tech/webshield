@@ -20,8 +20,31 @@ touch /etc/tempesta-webshield/allow_user_agents.txt
 python3 app.py 
 ```
 
+### Run tests
 ```bash
-pytest -s -vvv --pdb tests
+# run all tests with a logging level INFO
+pytest
+
+# show the tests output
+pytest -s
+
+# the additional verbose level for pytest
+pytest -vvv
+
+# run debugger on the error
+pytest --pdb
+
+# run the tests from dir
+pytest -s -vvv tests
+
+# run the tests from file
+pytest -s -vvv tests/test_app.py
+
+# run the specific test
+pytest -s -vvv tests/test_app.py::test_run_app
+
+# preferred running params
+pytest -s -vvv --pdb
 ```
 
 ### Format project
