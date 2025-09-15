@@ -1,5 +1,5 @@
 import time
-from ipaddress import IPv6Address
+from ipaddress import IPv6Address, IPv4Address
 
 from blockers.base import BaseBlocker
 from utils.datatypes import User
@@ -87,5 +87,5 @@ class IpSetBlocker(BaseBlocker):
         members = data.split("Members:\n")[1]
         ips = members.split("\n")
         return [
-            User(ip=[IPv6Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
+            User(ip=[IPv6Address(ip) if ':' in ip else IPv4Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
         ]

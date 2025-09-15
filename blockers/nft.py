@@ -1,6 +1,6 @@
 import re
 import time
-from ipaddress import IPv6Address
+from ipaddress import IPv6Address, IPv4Address
 
 from blockers.base import BaseBlocker
 from utils.datatypes import User
@@ -125,7 +125,7 @@ class NFTBlocker(BaseBlocker):
         ips = matched[0].split(",")
         ips = [i.strip() for i in ips]
         return [
-            User(ip=[IPv6Address(ip)], blocked_at=int(time.time()))
+            User(ip=[IPv6Address(ip) if ':' in ip else IPv4Address(ip)], blocked_at=int(time.time()))
             for ip in ips
             if ip is not None
         ]

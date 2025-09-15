@@ -2,7 +2,7 @@ import multiprocessing
 import time
 import urllib
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from ipaddress import IPv6Address
+from ipaddress import IPv4Address
 from urllib.request import urlopen
 
 import pytest
@@ -53,28 +53,28 @@ def http_server():
 
 
 def test_block_single(blocker):
-    user = User(ip=[IPv6Address("127.0.1.1")])
+    user = User(ip=[IPv4Address("127.0.1.1")])
     blocker.block(user)
 
     users = blocker.info()
     assert len(users) == 1
-    assert users[0].ip == [IPv6Address("127.0.1.1")]
+    assert users[0].ip == [IPv4Address("127.0.1.1")]
 
 
 def test_block_multiple(blocker):
-    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv4Address("127.0.1.1"), IPv4Address("127.0.1.2")])
     blocker.block(user)
 
     users = blocker.info()
     users.sort(key=lambda u: u.ip)
 
     assert len(users) == 2
-    assert users[0].ip == [IPv6Address("127.0.1.1")]
-    assert users[1].ip == [IPv6Address("127.0.1.2")]
+    assert users[0].ip == [IPv4Address("127.0.1.1")]
+    assert users[1].ip == [IPv4Address("127.0.1.2")]
 
 
 def test_release_single(blocker):
-    user = User(ip=[IPv6Address("127.0.1.1")])
+    user = User(ip=[IPv4Address("127.0.1.1")])
     blocker.block(user)
 
     users = blocker.info()
@@ -86,7 +86,7 @@ def test_release_single(blocker):
 
 
 def test_release_multiple(blocker):
-    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv4Address("127.0.1.1"), IPv4Address("127.0.1.2")])
     blocker.block(user)
 
     users = blocker.info()
@@ -103,14 +103,14 @@ def test_load_empty_table(blocker):
 
 
 def test_load_blocked(blocker):
-    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv4Address("127.0.1.1"), IPv4Address("127.0.1.2")])
     blocker.block(user)
     users = blocker.load()
     assert len(users) == 2
 
 
 def test_rules_work(blocker, http_server):
-    user = User(ip=[IPv6Address("127.0.0.1")])
+    user = User(ip=[IPv4Address("127.0.0.1")])
     response = urlopen("http://localhost:8000")
     assert response.getcode() == 200
 

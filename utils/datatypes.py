@@ -1,6 +1,7 @@
+import typing
 from dataclasses import dataclass
 from decimal import Decimal
-from ipaddress import IPv6Address
+from ipaddress import IPv6Address, IPv4Address
 from typing import Optional
 
 __author__ = "Tempesta Technologies, Inc."
@@ -19,7 +20,7 @@ class AverageStats:
 class User:
     ja5t: list[str] = None
     ja5h: list[str] = None
-    ip: list[IPv6Address] = ()
+    ip: list[typing.Union[IPv6Address, IPv4Address]] = ()
     value: Optional[Decimal] = None
     type: Optional[int] = None
     blocked_at: Optional[int] = None
