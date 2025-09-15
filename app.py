@@ -18,6 +18,11 @@ from detectors.ja5t import (
     Ja5tErrorRequestDetector,
     Ja5tRPSDetector,
 )
+from detectors.ja5h import (
+    Ja5hAccumulativeTimeDetector,
+    Ja5hErrorRequestDetector,
+    Ja5hRPSDetector,
+)
 from utils.access_log import ClickhouseAccessLog
 from utils.ja5_config import Ja5Config
 from utils.logger import logger
@@ -84,26 +89,44 @@ if __name__ == "__main__":
             ),
             Ja5tRPSDetector.name(): Ja5tRPSDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5_rps_default_threshold,
-                difference_multiplier=app_config.detector_ja5_rps_difference_multiplier,
-                block_users_per_iteration=app_config.detector_ja5_rps_block_users_per_iteration,
+                default_threshold=app_config.detector_ja5t_rps_default_threshold,
+                difference_multiplier=app_config.detector_ja5t_rps_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5t_rps_block_users_per_iteration,
             ),
             Ja5tAccumulativeTimeDetector.name(): Ja5tAccumulativeTimeDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5_time_default_threshold,
-                difference_multiplier=app_config.detector_ja5_time_difference_multiplier,
-                block_users_per_iteration=app_config.detector_ja5_time_block_users_per_iteration,
+                default_threshold=app_config.detector_ja5t_time_default_threshold,
+                difference_multiplier=app_config.detector_ja5t_time_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5t_time_block_users_per_iteration,
             ),
             Ja5tErrorRequestDetector.name(): Ja5tErrorRequestDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5_errors_default_threshold,
-                difference_multiplier=app_config.detector_ja5_errors_difference_multiplier,
-                block_users_per_iteration=app_config.detector_ja5_errors_block_users_per_iteration,
-                allowed_statues=app_config.detector_ja5_errors_allowed_statuses,
+                default_threshold=app_config.detector_ja5t_errors_default_threshold,
+                difference_multiplier=app_config.detector_ja5t_errors_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5t_errors_block_users_per_iteration,
+                allowed_statues=app_config.detector_ja5t_errors_allowed_statuses,
+            ),
+            Ja5hRPSDetector.name(): Ja5hRPSDetector(
+                access_log=clickhouse_client,
+                default_threshold=app_config.detector_ja5h_rps_default_threshold,
+                difference_multiplier=app_config.detector_ja5h_rps_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5h_rps_block_users_per_iteration,
+            ),
+            Ja5hAccumulativeTimeDetector.name(): Ja5hAccumulativeTimeDetector(
+                access_log=clickhouse_client,
+                default_threshold=app_config.detector_ja5h_time_default_threshold,
+                difference_multiplier=app_config.detector_ja5h_time_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5h_time_block_users_per_iteration,
+            ),
+            Ja5hErrorRequestDetector.name(): Ja5tErrorRequestDetector(
+                access_log=clickhouse_client,
+                default_threshold=app_config.detector_ja5h_errors_default_threshold,
+                difference_multiplier=app_config.detector_ja5h_errors_difference_multiplier,
+                block_users_per_iteration=app_config.detector_ja5h_errors_block_users_per_iteration,
+                allowed_statues=app_config.detector_ja5h_errors_allowed_statuses,
             ),
             GeoIPDetector.name(): GeoIPDetector(
                 access_log=clickhouse_client,
-                # default_threshold=app_config.detector_geoip_rps_default_threshold,
                 difference_multiplier=app_config.detector_geoip_difference_multiplier,
                 block_users_per_iteration=app_config.detector_geoip_block_users_per_iteration,
                 path_to_db=app_config.detector_geoip_path_to_db,

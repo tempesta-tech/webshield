@@ -28,12 +28,15 @@ class AppConfig(BaseSettings):
             "ip_rps",
             "ip_time",
             "ip_errors",
-            "ja5_rps",
-            "ja5_time",
-            "ja5_errors",
+            "ja5t_rps",
+            "ja5t_time",
+            "ja5t_errors",
+            "ja5h_rps",
+            "ja5h_time",
+            "ja5h_errors",
             "geoip",
         ]
-    ] = {"ja5_rps", "ja5_time", "ja5_errors"}
+    ] = {"ja5t_rps", "ja5t_time", "ja5t_errors"}
 
     blocking_types: set[Literal["ja5t", "ja5h", "ipset", "nftables"]] = {"ja5t"}
     blocking_window_duration_sec: int = 10
@@ -74,18 +77,48 @@ class AppConfig(BaseSettings):
         403,
     ]
 
-    detector_ja5_rps_default_threshold: Decimal = Decimal(10)
-    detector_ja5_rps_difference_multiplier: Decimal = Decimal(10)
-    detector_ja5_rps_block_users_per_iteration: Decimal = Decimal(10)
+    detector_ja5t_rps_default_threshold: Decimal = Decimal(10)
+    detector_ja5t_rps_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_rps_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5_time_default_threshold: Decimal = Decimal(10)
-    detector_ja5_time_difference_multiplier: Decimal = Decimal(10)
-    detector_ja5_time_block_users_per_iteration: Decimal = Decimal(10)
+    detector_ja5t_time_default_threshold: Decimal = Decimal(10)
+    detector_ja5t_time_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_time_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5_errors_default_threshold: Decimal = Decimal(10)
-    detector_ja5_errors_difference_multiplier: Decimal = Decimal(10)
-    detector_ja5_errors_block_users_per_iteration: Decimal = Decimal(10)
-    detector_ja5_errors_allowed_statuses: list[int] = [
+    detector_ja5t_errors_default_threshold: Decimal = Decimal(10)
+    detector_ja5t_errors_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_errors_block_users_per_iteration: Decimal = Decimal(10)
+    detector_ja5t_errors_allowed_statuses: list[int] = [
+        100,
+        101,
+        200,
+        201,
+        204,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        307,
+        308,
+        400,
+        401,
+        403,
+    ]
+
+    detector_ja5h_rps_default_threshold: Decimal = Decimal(10)
+    detector_ja5h_rps_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_rps_block_users_per_iteration: Decimal = Decimal(10)
+
+    detector_ja5h_time_default_threshold: Decimal = Decimal(10)
+    detector_ja5h_time_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_time_block_users_per_iteration: Decimal = Decimal(10)
+
+    detector_ja5h_errors_default_threshold: Decimal = Decimal(10)
+    detector_ja5h_errors_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_errors_block_users_per_iteration: Decimal = Decimal(10)
+    detector_ja5h_errors_allowed_statuses: list[int] = [
         100,
         101,
         200,
