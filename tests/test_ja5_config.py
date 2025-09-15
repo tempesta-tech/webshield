@@ -9,7 +9,7 @@ __license__ = "GPL2"
 
 
 @pytest.fixture
-def config_file(self):
+def config_path(self):
     path_to_config = "/tmp/tmp-hashes"
 
     with open(path_to_config, "w") as f:
