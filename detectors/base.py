@@ -111,7 +111,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
                     continue
 
                 kwargs = dict(ip=user.ip, ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
-                kwargs[validation_key] = value
+                kwargs[validation_key] = [value]
 
                 users_to_block.append(User(**kwargs))
 
