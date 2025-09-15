@@ -103,8 +103,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
                 comparing_table[value] = user.value
 
         for user in users_after:
-            for value in getattr(user, validation_key):
-                value = comparing_table.get(value, Decimal(1))
+            for _value in getattr(user, validation_key):
+                value = comparing_table.get(_value, Decimal(1))
                 multiplier = user.value / value
 
                 if multiplier < self._difference_multiplier:
