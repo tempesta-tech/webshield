@@ -99,12 +99,12 @@ class BaseDetector(metaclass=abc.ABCMeta):
         validation_key = self.validation_key
 
         for user in users_before:
-            for value in getattr(user, validation_key):
-                comparing_table[value] = user.value
+            for _value in getattr(user, validation_key):
+                comparing_table[_value] = user.value
 
         for user in users_after:
             for _value in getattr(user, validation_key):
-                value = comparing_table.get(_value, Decimal(1))
+                value = comparing_table.get(_value, self.threshold)
                 multiplier = user.value / value
 
                 if multiplier < self._difference_multiplier:
