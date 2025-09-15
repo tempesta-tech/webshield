@@ -6,7 +6,7 @@ logs stored in the ClickHouse database.
 # How to run
 
 ### Requirements:
-- Python 3.10 <=
+- Python 3.12 <=
 - Tempesta FW 0.8.0 <=
 - Clickhouse 25.6.0 <=
 
