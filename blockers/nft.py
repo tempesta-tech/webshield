@@ -125,7 +125,7 @@ class NFTBlocker(BaseBlocker):
         ips = matched[0].split(",")
         ips = [i.strip() for i in ips]
         return [
-            User(.ip=[IPv6Address(ip)], blocked_at=int(time.time()))
+            User(ip=[IPv6Address(ip)], blocked_at=int(time.time()))
             for ip in ips
             if ip is not None
         ]

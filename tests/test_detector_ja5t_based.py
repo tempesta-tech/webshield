@@ -58,7 +58,7 @@ async def test_rps_with_user_agents(access_log):
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == [User(ja5t=['d'], ja5h=['17'], .ip=[IPv6Address("127.0.0.3")])]
+    assert users_after == [User(ja5t=['d'], ja5h=['17'], ip=[IPv6Address("127.0.0.3")])]
 
 
 async def test_rps_with_persistent_users(access_log):
@@ -94,7 +94,7 @@ async def test_errors(access_log):
         User(
             ja5t=['d'],
             ja5h=['17'],
-            .ip=[IPv6Address("127.0.0.4"), IPv6Address("127.0.0.3")],
+            ip=[IPv6Address("127.0.0.4"), IPv6Address("127.0.0.3")],
         )
     ]
 

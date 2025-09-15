@@ -94,7 +94,7 @@ class GeoIPDetector(BaseDetector):
             User(
                 ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
                 ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
-                .ip=[user[2]],
+                ip=[user[2]],
                 value=user[3],
             )
             for user in response.result_rows

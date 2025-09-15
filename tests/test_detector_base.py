@@ -78,34 +78,34 @@ def test_standard_deviation(detector):
 def test_model_validation(detector):
     res = detector.validate_model(
         users_before=[
-            User(.ip=[IPv6Address("127.0.0.1")], value=Decimal(10)),
-            User(.ip=[IPv6Address("127.0.0.2")], value=Decimal(10)),
-            User(.ip=[IPv6Address("127.0.0.3")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.1")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.2")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.3")], value=Decimal(10)),
         ],
         users_after=[
-            User(.ip=[IPv6Address("127.0.0.1")], value=Decimal(100)),
-            User(.ip=[IPv6Address("127.0.0.2")], value=Decimal(100)),
-            User(.ip=[IPv6Address("127.0.0.3")], value=Decimal(100)),
+            User(ip=[IPv6Address("127.0.0.1")], value=Decimal(100)),
+            User(ip=[IPv6Address("127.0.0.2")], value=Decimal(100)),
+            User(ip=[IPv6Address("127.0.0.3")], value=Decimal(100)),
         ],
     )
     assert set(res) == {
-        User(.ip=[IPv6Address("127.0.0.1")]),
-        User(.ip=[IPv6Address("127.0.0.2")]),
-        User(.ip=[IPv6Address("127.0.0.3")]),
+        User(ip=[IPv6Address("127.0.0.1")]),
+        User(ip=[IPv6Address("127.0.0.2")]),
+        User(ip=[IPv6Address("127.0.0.3")]),
     }
 
 
 def test_model_validation_one_user(detector):
     res = detector.validate_model(
         users_before=[
-            User(.ip=[IPv6Address("127.0.0.1")], value=Decimal(10)),
-            User(.ip=[IPv6Address("127.0.0.2")], value=Decimal(10)),
-            User(.ip=[IPv6Address("127.0.0.3")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.1")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.2")], value=Decimal(10)),
+            User(ip=[IPv6Address("127.0.0.3")], value=Decimal(10)),
         ],
         users_after=[
-            User(.ip=[IPv6Address("127.0.0.1")], value=Decimal(20)),
-            User(.ip=[IPv6Address("127.0.0.2")], value=Decimal(50)),
-            User(.ip=[IPv6Address("127.0.0.3")], value=Decimal(100)),
+            User(ip=[IPv6Address("127.0.0.1")], value=Decimal(20)),
+            User(ip=[IPv6Address("127.0.0.2")], value=Decimal(50)),
+            User(ip=[IPv6Address("127.0.0.3")], value=Decimal(100)),
         ],
     )
-    assert set(res) == {User(.ip=[IPv6Address("127.0.0.3")])}
+    assert set(res) == {User(ip=[IPv6Address("127.0.0.3")])}

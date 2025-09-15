@@ -53,7 +53,7 @@ def http_server():
 
 
 def test_block_single(blocker):
-    user = User(.ip=[IPv6Address("127.0.1.1")])
+    user = User(ip=[IPv6Address("127.0.1.1")])
     blocker.block(user)
 
     users = blocker.info()
@@ -62,7 +62,7 @@ def test_block_single(blocker):
 
 
 def test_block_multiple(blocker):
-    user = User(.ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
     blocker.block(user)
 
     users = blocker.info()
@@ -74,7 +74,7 @@ def test_block_multiple(blocker):
 
 
 def test_release_single(blocker):
-    user = User(.ip=[IPv6Address("127.0.1.1")])
+    user = User(ip=[IPv6Address("127.0.1.1")])
     blocker.block(user)
 
     users = blocker.info()
@@ -86,7 +86,7 @@ def test_release_single(blocker):
 
 
 def test_release_multiple(blocker):
-    user = User(.ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
     blocker.block(user)
 
     users = blocker.info()
@@ -103,14 +103,14 @@ def test_load_empty_table(blocker):
 
 
 def test_load_blocked(blocker):
-    user = User(.ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
+    user = User(ip=[IPv6Address("127.0.1.1"), IPv6Address("127.0.1.2")])
     blocker.block(user)
     users = blocker.load()
     assert len(users) == 2
 
 
 def test_rules_work(blocker, http_server):
-    user = User(.ip=[IPv6Address("127.0.0.1")])
+    user = User(ip=[IPv6Address("127.0.0.1")])
     response = urlopen("http://localhost:8000")
     assert response.getcode() == 200
 

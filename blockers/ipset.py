@@ -87,5 +87,5 @@ class IpSetBlocker(BaseBlocker):
         members = data.split("Members:\n")[1]
         ips = members.split("\n")
         return [
-            User(.ip=[IPv6Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
+            User(ip=[IPv6Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
         ]
