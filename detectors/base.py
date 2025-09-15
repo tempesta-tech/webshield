@@ -81,6 +81,10 @@ class BaseDetector(metaclass=abc.ABCMeta):
             ),
         )
 
+    @property
+    def validation_key(self) -> str:
+        return 'ip'
+
     def validate_model(
         self, users_before: list[User], users_after: list[User]
     ) -> list[User]:
@@ -92,22 +96,24 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         comparing_table = dict()
         users_to_block = []
+        validation_key = self.validation_key
 
         for user in users_before:
-            for ip in user.ip:
-                comparing_table[ip] = user.value
+            for value in getattr(user, validation_key):
+                comparing_table[value] = user.value
 
         for user in users_after:
-            for ip in user.ip:
-                value = comparing_table.get(ip, Decimal(1))
+            for value in getattr(user, validation_key):
+                value = comparing_table.get(value, Decimal(1))
                 multiplier = user.value / value
 
                 if multiplier < self._difference_multiplier:
                     continue
 
-                users_to_block.append(
-                    User(ip=[ip], ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
-                )
+                kwargs = dict(ip=user.ip, ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
+                kwargs[validation_key] = value
+
+                users_to_block.append(User(**kwargs))
 
         return users_to_block
 
