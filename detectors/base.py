@@ -1,6 +1,7 @@
 import abc
 import asyncio
 import math
+import typing
 from decimal import Decimal
 
 from clickhouse_connect.driver import AsyncClient
@@ -31,10 +32,16 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
     @property
     def db(self) -> AsyncClient:
+        """
+        The ClickHouse database connection
+        """
         return self._access_log.conn
 
     @property
     def threshold(self) -> Decimal:
+        """
+        Current rounded threshold of the detector
+        """
         return self._threshold.quantize(Decimal("0.01"))
 
     @threshold.setter
@@ -56,17 +63,19 @@ class BaseDetector(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def fetch_for_period(self, start_at: int, finish_at: int) -> list[User]:
         """
+        Analyze user activity over the time period and identify the most risky users.
 
-        :param start_at:
-        :param finish_at:
-        :return:
+        :param start_at: period start time
+        :param finish_at: period finish time
+        :return: list of dangerous users
         """
 
     async def find_users(
         self, current_time: int, interval: int
     ) -> [list[User], list[User]]:
         """
-        Performed analysis and identified risky users.
+        Get two groups of the most risky users for different time periods
+        for further analysis.
 
         :param current_time: used as the current time in functional tests
         :param interval: used as the current time in functional tests
@@ -82,17 +91,26 @@ class BaseDetector(metaclass=abc.ABCMeta):
         )
 
     @property
-    def validation_key(self) -> str:
+    def validation_key(self) -> typing.Literal['ip', 'ja5t', 'ja5h']:
+        """
+        The user model validation field
+        """
         return 'ip'
 
     def validate_model(
         self, users_before: list[User], users_after: list[User]
     ) -> list[User]:
         """
+        The model is an algorithm used to identify users relevant for blocking.
 
-        :param users_before:
-        :param users_after:
-        :return:
+        It takes two groups of users from different past time periods and compares their activity.
+        If the newer group generates unusual traffic that wasn't observed in the earlier period,
+        these users are marked as risky and will be blocked.
+
+        :param users_before: the group of users from two periods ago
+        :param users_after: the group of users from the previous period
+
+        :return: a list of users to be blocked
         """
         comparing_table = dict()
         users_to_block = []
@@ -120,16 +138,14 @@ class BaseDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def arithmetic_mean(values: list[Decimal]) -> Decimal:
         """
-
-        :return:
+        The arithmetic mean of the users' activity parameter
         """
         return Decimal(sum(values) / Decimal(len(values))).quantize(Decimal("0.01"))
 
     @staticmethod
     def standard_deviation(values: list[Decimal], arithmetic_mean: Decimal) -> Decimal:
         """
-
-        :return:
+        The standard deviation (1 sigma) of the users' activity parameter
         """
         deviation = sum(
             map(lambda val: math.pow(val - arithmetic_mean, Decimal(2)), values)
@@ -138,9 +154,20 @@ class BaseDetector(metaclass=abc.ABCMeta):
         return Decimal(math.sqrt(deviation)).quantize(Decimal("0.01"))
 
     def get_values_for_threshold(self, users: list[User]) -> list[Decimal]:
+        """
+        Get the activity parameter of the user group
+
+        :param users: list of users
+        :return: list of user activity parameter values
+        """
         return [user.value for user in users]
 
     def update_threshold(self, users: list[User]):
+        """
+        Set the new threshold
+
+        :param users: list of users
+        """
         if not users:
             self.threshold = self._default_threshold
             return
@@ -158,18 +185,21 @@ class SQLBasedDetector(BaseDetector):
     @abc.abstractmethod
     def get_request(self, start_at: int, finish_at: int) -> str:
         """
+        Return the SQL query for ClickHouse DB access log data to fetch
+        the most risky users for the specified time period
 
-        :param start_at:
-        :param finish_at:
-        :return:
+        :param start_at: period start time
+        :param finish_at: period finish time
+
+        :return: sql query to run
         """
 
     async def fetch_for_period(self, start_at: int, finish_at: int) -> list[User]:
         """
+        Run the SQL query and fetch the risky users for the specified time period
 
-        :param start_at:
-        :param finish_at:
-        :return:
+        :param start_at: period start time
+        :param finish_at: period finish time
         """
         response = await self.db.query(self.get_request(start_at, finish_at))
 

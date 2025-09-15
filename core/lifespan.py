@@ -22,6 +22,9 @@ class BaseState(abc.ABC):
 
 
 class Initialization(BaseState):
+    """
+    Prepare the application to run
+    """
     def _initialize_blockers(self):
         for blocking_type in self.context.app_config.blocking_types:
             self.context.blockers[blocking_type].prepare()
@@ -62,6 +65,9 @@ class Initialization(BaseState):
 
 
 class LoadPersistentUsers(BaseState):
+    """
+    Retrieve users from the specified time interval and whitelist them.
+    """
     async def _load_persistent_users(self, start_at: int, finish_at: int):
         await self.context.clickhouse_client.conn.query(
             f"""
@@ -99,6 +105,10 @@ class LoadPersistentUsers(BaseState):
 
 
 class HistoricalModeTraining(BaseState):
+    """
+    Load the system load for the past time period
+    and calculate the thresholds
+    """
     async def _update_thresholds(self, start_at: int, finish_at: int):
         coroutines = []
         detectors = self.context.active_detectors
@@ -128,6 +138,10 @@ class HistoricalModeTraining(BaseState):
 
 
 class RealModeTraining(HistoricalModeTraining):
+    """
+    Wait time period and basing on the users activity
+    calculate the thresholds
+    """
 
     async def _collect_data(self):
         await asyncio.sleep(self.context.app_config.training_mode_duration_sec)
@@ -138,6 +152,12 @@ class RealModeTraining(HistoricalModeTraining):
 
 
 class BackgroundRiskyUsersMonitoring(BaseState):
+    """
+    Run each activated detector at the specified time interval and
+    validate its verification model. If the model is validated, block the users.
+    Also, update the detectors' thresholds with each iteration.
+    """
+
     def __block_users(self, blocking_users_bulks: list[list[User]], current_time: int):
         total_users = 0
         blocked_users = 0
@@ -191,13 +211,11 @@ class BackgroundRiskyUsersMonitoring(BaseState):
             )
 
         self.__block_users(
-            blocking_users_bulks=blocking_users_bulks, current_time=current_time
+            blocking_users_bulks=blocking_users_bulks,
+            current_time=current_time
         )
 
     async def run(self, testing: bool = False) -> None:
-        """
-        Start periodic monitoring of new risky users and block them if necessary
-        """
         if testing:
             return await self._update_threshold_and_block_users()
 
