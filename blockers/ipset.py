@@ -1,5 +1,5 @@
 import time
-from ipaddress import IPv4Address
+from ipaddress import IPv6Address
 
 from blockers.base import BaseBlocker
 from utils.datatypes import User
@@ -61,7 +61,7 @@ class IpSetBlocker(BaseBlocker):
         )
 
     def block(self, user: User):
-        for ip in user.ipv4:
+        for ip in user.ip:
             result = run_in_shell(
                 f"ipset add {self.blocking_ip_set_name} {ip}",
                 error=f"{ip} could not be blocked",
@@ -72,7 +72,7 @@ class IpSetBlocker(BaseBlocker):
                 logger.warning(f"Blocked user {ip} by ipset")
 
     def release(self, user: User):
-        for ip in user.ipv4:
+        for ip in user.ip:
             result = run_in_shell(
                 f"ipset del {self.blocking_ip_set_name} {ip}",
                 error=f"{ip} could not be released",
@@ -87,5 +87,5 @@ class IpSetBlocker(BaseBlocker):
         members = data.split("Members:\n")[1]
         ips = members.split("\n")
         return [
-            User(ipv4=[IPv4Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
+            User(.ip=[IPv6Address(ip)], blocked_at=int(time.time())) for ip in ips[:-1]
         ]

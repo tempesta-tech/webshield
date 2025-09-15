@@ -1,6 +1,6 @@
 import re
 import time
-from ipaddress import IPv4Address
+from ipaddress import IPv6Address
 
 from blockers.base import BaseBlocker
 from utils.datatypes import User
@@ -85,7 +85,7 @@ class NFTBlocker(BaseBlocker):
         )
 
     def block(self, user: User):
-        for ip in user.ipv4:
+        for ip in user.ip:
             result = run_in_shell(
                 f"nft add element inet {self.blocking_table_name}_table "
                 f'{self.blocking_table_name} "{{ {ip} }}"',
@@ -97,7 +97,7 @@ class NFTBlocker(BaseBlocker):
                 logger.warning(f"Blocked user {ip} by nft")
 
     def release(self, user: User):
-        for ip in user.ipv4:
+        for ip in user.ip:
             result = run_in_shell(
                 f"nft delete element inet {self.blocking_table_name}_table "
                 f'{self.blocking_table_name} "{{ {ip} }}"',
@@ -125,7 +125,7 @@ class NFTBlocker(BaseBlocker):
         ips = matched[0].split(",")
         ips = [i.strip() for i in ips]
         return [
-            User(ipv4=[IPv4Address(ip)], blocked_at=int(time.time()))
+            User(.ip=[IPv6Address(ip)], blocked_at=int(time.time()))
             for ip in ips
             if ip is not None
         ]

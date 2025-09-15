@@ -94,7 +94,7 @@ class GeoIPDetector(BaseDetector):
             User(
                 ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
                 ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
-                ipv4=[user[2]],
+                .ip=[user[2]],
                 value=user[3],
             )
             for user in response.result_rows
@@ -104,7 +104,7 @@ class GeoIPDetector(BaseDetector):
         cities = dict()
 
         for user in users:
-            city = self.find_city(str(user.ipv4[0]))
+            city = self.find_city(str(user.ip[0]))
 
             if city.city.name not in cities:
                 cities[city.city.name] = CityStats()

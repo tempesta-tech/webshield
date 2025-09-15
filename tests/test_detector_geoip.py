@@ -1,6 +1,6 @@
 import os
 from decimal import Decimal
-from ipaddress import IPv4Address
+from ipaddress import IPv6Address
 
 import pytest
 
@@ -112,7 +112,7 @@ async def test_find(detector, additional_logs):
     blocked = detector.validate_model(users_before=before, users_after=after)
 
     assert len(blocked) == 1
-    assert blocked[0].ipv4[0] == IPv4Address("79.143.107.10")
+    assert blocked[0].ip[0] == IPv6Address("79.143.107.10")
 
 
 async def test_find_allowed_city(detector, additional_logs):

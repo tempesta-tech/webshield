@@ -94,11 +94,11 @@ class BaseDetector(metaclass=abc.ABCMeta):
         users_to_block = []
 
         for user in users_before:
-            for ip in user.ipv4:
+            for ip in user.ip:
                 comparing_table[ip] = user.value
 
         for user in users_after:
-            for ip in user.ipv4:
+            for ip in user.ip:
                 value = comparing_table.get(ip, Decimal(1))
                 multiplier = user.value / value
 
@@ -106,7 +106,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
                     continue
 
                 users_to_block.append(
-                    User(ipv4=[ip], ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
+                    User(.ip=[ip], ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
                 )
 
         return users_to_block
@@ -171,7 +171,7 @@ class SQLBasedDetector(BaseDetector):
             User(
                 ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
                 ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
-                ipv4=user[2],
+                .ip=user[2],
                 value=user[3],
                 # type=user[4]
             )
