@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 import pytest
-from clickhouse_connect.driverc.dataconv import IPv6Address
+from ipaddress import IPv6Address
 
 from blockers.base import BaseBlocker
 from config import AppConfig
