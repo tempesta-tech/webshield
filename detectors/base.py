@@ -112,26 +112,30 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         :return: a list of users to be blocked
         """
-        comparing_table = dict()
-        users_to_block = []
         validation_key = self.validation_key
+
+        users_map_before = dict()
+        users_map_after = dict()
 
         for user in users_before:
             for _value in getattr(user, validation_key):
-                comparing_table[_value] = user.value
+                users_map_before[_value] = user
 
         for user in users_after:
             for _value in getattr(user, validation_key):
-                value = comparing_table.get(_value, self.threshold)
-                multiplier = user.value / value
+                users_map_after[_value] = user
 
-                if multiplier < self._difference_multiplier:
-                    continue
+        # keys intersection
+        intersection_keys = users_map_before.keys() & users_map_after.keys()
+        intersection_keys_percent = len(intersection_keys) / len(users_before)
 
-                kwargs = dict(ip=user.ip, ja5t=user.ja5t, ja5h=user.ja5h, value=user.value)
-                kwargs[validation_key] = [_value]
+        if intersection_keys_percent > self._difference_multiplier:
+            return []
 
-                users_to_block.append(User(**kwargs))
+        users_to_block = []
+
+        for key in intersection_keys:
+            users_to_block.append(users_map_after[key])
 
         return users_to_block
 
