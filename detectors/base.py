@@ -132,12 +132,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         if intersection_keys_percent > self._difference_multiplier:
             return []
 
-        users_to_block = []
-
-        for key in intersection_keys:
-            users_to_block.append(users_map_after[key])
-
-        return users_to_block
+        return users_after
 
     @staticmethod
     def arithmetic_mean(values: list[Decimal]) -> Decimal:
