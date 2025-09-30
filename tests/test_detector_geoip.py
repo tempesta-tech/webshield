@@ -13,7 +13,13 @@ __license__ = "GPL2"
 
 @pytest.fixture(autouse=True)
 def clean_allowed_cities_file():
-    os.remove("/tmp/allowed_cities_list.txt")
+    yield
+
+    path = "/tmp/allowed_cities_list.txt"
+
+    if os.path.exists(path):
+        os.remove(path)
+
 
 @pytest.fixture
 async def detector(access_log):
