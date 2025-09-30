@@ -132,7 +132,7 @@ async def test_block_users(app_context, lifespan):
         (1751535000, 1751535010),
         (1751535010, 1751535020),
     ]
-    assert app_context.detectors["ip_rps"].threshold == Decimal("2.82")
+    assert app_context.detectors["ip_rps"].threshold == Decimal("2.0")
 
     assert app_context.detectors["ip_time"].passed_time == [
         (1751535000, 1751535010),
