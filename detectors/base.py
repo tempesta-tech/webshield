@@ -121,6 +121,10 @@ class BaseDetector(metaclass=abc.ABCMeta):
             for _value in getattr(user, validation_key):
                 users_map_before[_value] = user
 
+        # prevent division by zero
+        if not users_before:
+            return []
+
         for user in users_after:
             for _value in getattr(user, validation_key):
                 users_map_after[_value] = user

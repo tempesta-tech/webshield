@@ -128,6 +128,11 @@ class GeoIPDetector(BaseDetector):
     ) -> list[User]:
 
         cities_before = self.cities_stats(users_before)
+
+        # prevent division by zero
+        if not cities_before:
+            return []
+
         cities_after = self.cities_stats(users_after)
 
         intersection_keys = cities_before.keys() & cities_after.keys()
