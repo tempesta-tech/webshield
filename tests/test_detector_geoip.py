@@ -104,6 +104,7 @@ async def test_find_low_rps(detector):
 
 async def test_find(detector, additional_logs):
     await detector.prepare()
+    detector.threshold = 1
 
     before, after = await detector.find_users(current_time=1751535020, interval=10)
 
