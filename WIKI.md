@@ -139,24 +139,33 @@ Since multiple detectors are available, all of them can be used to analyze traff
 
 The model defines the algorithm detectors use to identify aggressive users who are likely to be blocked.
 
-The **Aggressive Rise** model operates by comparing user access logs over different time periods—for example, using a step of 
-one hour—to detect sharp increases in traffic from clients that were previously quiet. Each detector has a configuration
-variable `*[DETECTOR_NAME]_DIFFERENCE_MULTIPLIER*`, which determines how many times the traffic must increase compared 
-to the previous iteration to be considered aggressive. Additionally, the `BLOCKING_WINDOW_DURATION_SEC` parameter 
-defines the time interval over which users are fetched.
+The **Aggressive Rise** model works by comparing user access logs over different time periods—for example, in one-hour steps—to 
+detect new groups of users generating the highest traffic. Each detector has a configuration variable
+`*[DETECTOR_NAME]_INTERSECTION_PERCENT*`, which specifies the overlap (in percent) between new and old groups.
+
+If the intersection percent is greater than the configured value, we assume the groups represent the same users and the situation is normal.
+If the intersection percent is lower than the configured value, we assume this indicates unusual traffic and block the entire new group of users.
+
+Additionally, the `BLOCKING_WINDOW_DURATION_SEC` parameter defines the time interval over which users are fetched.
+
+---
+
+#### Example
 
 Assume the current time is `2025-01-01 02:00:00`, and we have:
 
 * `BLOCKING_WINDOW_DURATION_SEC = 3600` (1 hour)
-* `DETECTOR_JA5T_RPS_DIFFERENCE_MULTIPLIER = 10`
+* `DETECTOR_JA5T_RPS_INTERSECTION_PERCENT = 10`
 
-In this case, the `JA5T_DETECTOR` should fetch top active users that exceed the detector's threshold from the following two time intervals:
+In this case, the `JA5T_DETECTOR` should fetch the top active users that exceed the detector’s threshold from the following two intervals:
 
-* **GroupA**: \[2025-01-01 00:00:00 – 2025-01-01 01:00:00)
-* **GroupB**: \[2025-01-01 01:00:00 – 2025-01-01 02:00:00)
+* **Group A**: [2025-01-01 00:00:00 – 2025-01-01 01:00:00)
+* **Group B**: [2025-01-01 01:00:00 – 2025-01-01 02:00:00)
 
-The detector then compares users in both groups and identifies those whose RPS (requests per second) increased more than 
-**10 times** in GroupB compared to GroupA. If such users are found — they are blocked.
+The detector then calculates how many users from GroupB also exist in GroupA.
+If the percentage of overlapping users is less than 10%, the detector blocks all users from GroupB.
+
+---
 
 Currently, **Aggressive Rise** is the only model, and all detectors use it.
 
@@ -176,7 +185,7 @@ Aggregate users by IP address and calculate their RPS
 | NAME                                      | VALUE | DESCRIPTION                                                                                                              |
 |-------------------------------------------|-------|--------------------------------------------------------------------------------------------------------------------------|
 | DETECTOR_IP_RPS_DEFAULT_THRESHOLD         | 10    | Installs the default RPS threshold                                                                                       |
-| DETECTOR_IP_RPS_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA                             |
+| DETECTOR_IP_RPS_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA                             |
 | DETECTOR_IP_RPS_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                                               |
 
 ### Detector IP_TIME
@@ -186,7 +195,7 @@ Aggregate users by IP address and calculate their cumulative response time.
 | NAME                                       | VALUE | DESCRIPTION                                                                                  |
 |--------------------------------------------|-------|----------------------------------------------------------------------------------------------|
 | DETECTOR_IP_TIME_DEFAULT_THRESHOLD         | 10    | Installs the default accumulative time threshold                                             |
-| DETECTOR_IP_TIME_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_IP_TIME_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_IP_TIME_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                   |
 
 ### Detector IP_ERRORS
@@ -196,7 +205,7 @@ Aggregate users by IP address and calculate the number of responses finished wit
 | NAME                                         | VALUE           | DESCRIPTION                                                                                  |
 |----------------------------------------------|-----------------|----------------------------------------------------------------------------------------------|
 | DETECTOR_IP_ERRORS_DEFAULT_THRESHOLD         | 10              | Installs the default responses error threshold                                               |
-| DETECTOR_IP_ERRORS_DIFFERENCE_MULTIPLIER     | 10              | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_IP_ERRORS_INTERSECTION_PERCENT     | 10              | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_IP_ERRORS_BLOCK_USERS_PER_ITERATION | 100             | Defines the number of users that can be blocked per check.                                   |
 | DETECTOR_IP_ERRORS_ALLOWED_STATUSES          | [100, 101, ...] | Defines the list of response status codes ignored by WebShield                               |
 
@@ -207,7 +216,7 @@ Aggregate users by JA5T-hash and calculate their RPS
 | NAME                                        | VALUE | DESCRIPTION                                                                                 |
 |---------------------------------------------|-------|---------------------------------------------------------------------------------------------|
 | DETECTOR_JA5T_RPS_DEFAULT_THRESHOLD         | 10    | Installs the default RPS threshold                                                          |
-| DETECTOR_JA5T_RPS_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5T_RPS_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5T_RPS_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.               |
 
 ### Detector JA5T_TIME
@@ -217,7 +226,7 @@ Aggregate users by JA5T-hash and calculate their cumulative response time.
 | NAME                                         | VALUE | DESCRIPTION                                                                                  |
 |----------------------------------------------|-------|----------------------------------------------------------------------------------------------|
 | DETECTOR_JA5T_TIME_DEFAULT_THRESHOLD         | 10    | Installs the default accumulative time threshold                                             |
-| DETECTOR_JA5T_TIME_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5T_TIME_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5T_TIME_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                   |
 
 ### Detector JA5T_ERRORS
@@ -227,7 +236,7 @@ Aggregate users by JA5T-hash and calculate the number of responses finished with
 | NAME                                           | VALUE | DESCRIPTION                                                                                  |
 |------------------------------------------------|-------|----------------------------------------------------------------------------------------------|
 | DETECTOR_JA5T_ERRORS_DEFAULT_THRESHOLD         | 10    | Installs the default responses error threshold                                               |
-| DETECTOR_JA5T_ERRORS_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5T_ERRORS_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5T_ERRORS_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                   |
 | DETECTOR_JA5T_ERRORS_ALLOWED_STATUSES          | [100, 101, ...] | Defines the list of response status codes ignored by WebShield                               |
 
@@ -238,7 +247,7 @@ Aggregate users by JA5H-hash and calculate their RPS
 | NAME                                        | VALUE | DESCRIPTION                                                                                 |
 |---------------------------------------------|-------|---------------------------------------------------------------------------------------------|
 | DETECTOR_JA5H_RPS_DEFAULT_THRESHOLD         | 10    | Installs the default RPS threshold                                                          |
-| DETECTOR_JA5H_RPS_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5H_RPS_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5H_RPS_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.               |
 
 ### Detector JA5H_TIME
@@ -248,7 +257,7 @@ Aggregate users by JA5H-hash and calculate their cumulative response time.
 | NAME                                         | VALUE | DESCRIPTION                                                                                  |
 |----------------------------------------------|-------|----------------------------------------------------------------------------------------------|
 | DETECTOR_JA5H_TIME_DEFAULT_THRESHOLD         | 10    | Installs the default accumulative time threshold                                             |
-| DETECTOR_JA5H_TIME_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5H_TIME_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5H_TIME_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                   |
 
 ### Detector JA5H_ERRORS
@@ -258,7 +267,7 @@ Aggregate users by JA5H-hash and calculate the number of responses finished with
 | NAME                                           | VALUE | DESCRIPTION                                                                                  |
 |------------------------------------------------|-------|----------------------------------------------------------------------------------------------|
 | DETECTOR_JA5H_ERRORS_DEFAULT_THRESHOLD         | 10    | Installs the default responses error threshold                                               |
-| DETECTOR_JA5H_ERRORS_DIFFERENCE_MULTIPLIER     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_JA5H_ERRORS_INTERSECTION_PERCENT     | 10    | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_JA5H_ERRORS_BLOCK_USERS_PER_ITERATION | 100   | Defines the number of users that can be blocked per check.                                   |
 | DETECTOR_JA5H_ERRORS_ALLOWED_STATUSES          | [100, 101, ...] | Defines the list of response status codes ignored by WebShield                               |
 
@@ -271,7 +280,7 @@ It is also possible to define a list of whitelisted cities that will be ignored 
 | NAME                                         | VALUE                                     | DESCRIPTION                                                                                  |
 |----------------------------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------|
 | DETECTOR_GEOIP_RPS_DEFAULT_THRESHOLD         | 10                                        | Installs the default RPS threshold                                                           |
-| DETECTOR_GEOIP_DIFFERENCE_MULTIPLIER         | 10                                        | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
+| DETECTOR_GEOIP_INTERSECTION_PERCENT         | 10                                        | Defines the difference between two user groups. How many times GroupB is greater then GroupA |
 | DETECTOR_GEOIP_BLOCK_USERS_PER_ITERATION     | 100                                       | Defines the number of users that can be blocked per check.                                   |
 | DETECTOR_GEOIP_PATH_TO_DB                    | /etc/tempesta-webshield/city.db           | Defines the path to the MaxMind City GeoIP database.                                                                                     |
 | DETECTOR_GEOIP_PATH_ALLOWED_CITIES_LIST      | /etc/tempesta-webshield/allowed_cities.db | Defines the path to the MaxMind City GeoIP database.                                                                                     |
