@@ -151,5 +151,4 @@ async def test_update_thresholds(detector, additional_logs):
     assert len(after) == 1
 
     detector.update_threshold(users=after)
-
     assert detector.threshold == Decimal(8.0)
