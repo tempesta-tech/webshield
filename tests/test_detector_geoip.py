@@ -145,8 +145,11 @@ async def test_find_allowed_city(detector, additional_logs):
 
 async def test_update_thresholds(detector, additional_logs):
     await detector.prepare()
+    detector.threshold = Decimal(1)
 
     _, after = await detector.find_users(current_time=1751535020, interval=10)
+    assert len(after) == 1
+
     detector.update_threshold(users=after)
 
     assert detector.threshold == Decimal(11.0)
