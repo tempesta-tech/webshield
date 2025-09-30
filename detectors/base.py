@@ -103,12 +103,14 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         The model is an algorithm used to identify users relevant for blocking.
 
-        It takes two groups of users from different past time periods and compares their activity.
-        If the newer group generates unusual traffic that wasn't observed in the earlier period,
-        these users are marked as risky and will be blocked.
+        It takes two groups of users from different past time periods and compares them.
+        If the users from one period ago overlap with the users from two periods ago by at least [DETECTOR]_INTERSECTION_PERCENT,
+        we assume this situation is normal since we are seeing the same users.
+        However, if the users from one period ago were not in the previous group and their overlap is less than [DETECTOR]_INTERSECTION_PERCENT,
+        we assume this is unusual traffic and block the entire new group of users.
 
-        :param users_before: the group of users from two periods ago
-        :param users_after: the group of users from the previous period
+        :param users_before: the group of users from two periods ago who generated the highest traffic
+        :param users_after: the group of users from the previous period who generated the highest traffic
 
         :return: a list of users to be blocked
         """
