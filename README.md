@@ -1,0 +1,74 @@
+# Tempesta WebShield
+
+Block users by JA5T, JA5H, or IP based on Tempesta FW access 
+logs stored in the ClickHouse database.
+
+# How to run
+
+### Requirements:
+- Python 3.12 <=
+- Tempesta FW 0.8.0 <=
+- Clickhouse 25.6.0 <=
+
+### Run manually
+```bash
+python3 -m venv tempesta-webshield
+source tempesta-webshield/bin/activate
+pip install -r requirements.txt
+cp example.env /etc/tempesta-webshield/app.env
+touch /etc/tempesta-webshield/allow_user_agents.txt
+python3 app.py 
+```
+
+### Run tests
+```bash
+# run all tests with a logging level INFO
+pytest
+
+# show the tests output
+pytest -s
+
+# the additional verbose level for pytest
+pytest -vvv
+
+# run debugger on the error
+pytest --pdb
+
+# run the tests from dir
+pytest -s -vvv tests
+
+# run the tests from file
+pytest -s -vvv tests/test_app.py
+
+# run the specific test
+pytest -s -vvv tests/test_app.py::test_run_app
+
+# preferred running params
+pytest -s -vvv --pdb
+```
+
+### Format project
+```bash
+black .
+isort .
+```
+
+# How to block
+
+### Prepare Tempesta FW config
+It's useful to define separate directories for different groups of JA5 hashes  
+in the Tempesta FW configuration file (/etc/tempesta/tempesta_fw.conf).
+```nginx
+ja5t {
+    !include /etc/tempesta/ja5t/
+}
+ja5h {
+    !include /etc/tempesta/ja5h/
+}
+```
+Then add 2 files
+- /etc/tempesta/ja5t/blocked.conf
+- /etc/tempesta/ja5h/blocked.conf
+
+These files should be used by default by the WebShield 
+to add new blocking hashes.
