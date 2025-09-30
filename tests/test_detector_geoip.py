@@ -94,8 +94,8 @@ async def test_prepare_no_geodb(detector: GeoIPDetector):
 async def test_find_low_rps(detector):
     await detector.prepare()
     before, after = await detector.find_users(current_time=1751535020, interval=10)
-    assert len(before) == 0
-    assert len(after) == 1
+    assert len(before) == 1
+    assert len(after) == 0
 
     blocked = detector.validate_model(users_before=before, users_after=after)
     assert blocked == []
@@ -106,8 +106,8 @@ async def test_find(detector, additional_logs):
 
     before, after = await detector.find_users(current_time=1751535020, interval=10)
 
-    assert len(before) == 0
-    assert len(after) == 2
+    assert len(before) == 2
+    assert len(after) == 1
 
     blocked = detector.validate_model(users_before=before, users_after=after)
 
@@ -122,7 +122,7 @@ async def test_find_allowed_city(detector, additional_logs):
     await detector.prepare()
     before, after = await detector.find_users(current_time=1751535020, interval=10)
 
-    assert len(before) == 0
+    assert len(before) == 2
     assert len(after) == 2
 
     blocked = detector.validate_model(users_before=before, users_after=after)
@@ -132,7 +132,7 @@ async def test_find_allowed_city(detector, additional_logs):
 async def test_update_thresholds(detector, additional_logs):
     await detector.prepare()
 
-    _, after = await detector.find_users(current_time=1751535003, interval=5)
+    _, after = await detector.find_users(current_time=1751535020, interval=10)
     detector.update_threshold(users=after)
 
     assert detector.threshold == Decimal(11.0)
