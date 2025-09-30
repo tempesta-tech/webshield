@@ -112,6 +112,10 @@ class GeoIPDetector(BaseDetector):
             cities[city.city.name].users.append(user)
             cities[city.city.name].total_requests += user.value
 
+        for city in cities.keys():
+            if cities[city].total_requests <= self.threshold:
+                cities.pop(city)
+
         return cities
 
     def validate_model(
@@ -121,29 +125,16 @@ class GeoIPDetector(BaseDetector):
         cities_before = self.cities_stats(users_before)
         cities_after = self.cities_stats(users_after)
 
+        intersection_keys = cities_before.keys() & cities_after.keys()
+        intersection_keys_percent = (len(intersection_keys) / len(cities_before)) * 100
+
+        if intersection_keys_percent > self._intersection_percent:
+            return []
+
         blocking_cities = []
-
-        for name, city_after in cities_after.items():
-            if name in self.loaded_cities:
-                logger.debug(f"GeoIP skipped user from allowed city {name}")
-                continue
-
-            city_before = cities_before.get(name)
-
-            if not city_before:
-                city_before = CityStats(total_requests=Decimal(1))
-
-            if city_after.total_requests < self.threshold:
-                continue
-
-            multiplier = city_after.total_requests / city_before.total_requests
-
-            if multiplier >= self._difference_multiplier:
-                blocking_cities.append(name)
-
         result_users = []
 
-        for city in blocking_cities:
+        for city in cities_after:
             city_to_block = cities_after.get(city)
             result_users.extend(city_to_block.users)
 
