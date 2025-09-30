@@ -182,7 +182,8 @@ class BackgroundRiskyUsersMonitoring(BaseState):
 
     async def _update_threshold_and_block_users(self):
         """
-        Retrieve a batch of newly identified risky clients and block them
+        Periodically run the detectors, identify risky users, and update
+        their thresholds based on the current situation.
         """
 
         current_time = self.context.utc_now
