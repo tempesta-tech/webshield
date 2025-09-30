@@ -138,7 +138,7 @@ async def test_block_users(app_context, lifespan):
         (1751535000, 1751535010),
         (1751535010, 1751535020),
     ]
-    assert app_context.detectors["ip_time"].threshold == Decimal("25.80")
+    assert app_context.detectors["ip_time"].threshold == Decimal("30.00")
 
     assert app_context.blockers["ipset"].block_called == 2
     assert set(app_context.blocked.values()) == {
