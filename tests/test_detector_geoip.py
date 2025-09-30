@@ -17,8 +17,8 @@ async def detector(access_log):
         """
         insert into access_log values 
         (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 11, 21, 0),
-        (cast('1751536000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751537000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
+        (cast('1751536015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751537015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
         """
     )
 
@@ -63,14 +63,14 @@ async def additional_logs(access_log):
         (cast('1751535000' as DateTime64(3, 'UTC')), '179.143.107.11', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 11, 21, 0),
         (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 11, 21, 0),
         (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
         """
     )
 
@@ -93,7 +93,7 @@ async def test_prepare_no_geodb(detector: GeoIPDetector):
 
 async def test_find_low_rps(detector):
     await detector.prepare()
-    before, after = await detector.find_users(current_time=1751535003, interval=5)
+    before, after = await detector.find_users(current_time=1751535020, interval=10)
     assert len(before) == 0
     assert len(after) == 1
 
@@ -104,7 +104,7 @@ async def test_find_low_rps(detector):
 async def test_find(detector, additional_logs):
     await detector.prepare()
 
-    before, after = await detector.find_users(current_time=1751535003, interval=5)
+    before, after = await detector.find_users(current_time=1751535020, interval=10)
 
     assert len(before) == 0
     assert len(after) == 2
@@ -120,7 +120,7 @@ async def test_find_allowed_city(detector, additional_logs):
         f.write("Podgorica")
 
     await detector.prepare()
-    before, after = await detector.find_users(current_time=1751535003, interval=5)
+    before, after = await detector.find_users(current_time=1751535020, interval=10)
 
     assert len(before) == 0
     assert len(after) == 2
