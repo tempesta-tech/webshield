@@ -59,9 +59,7 @@ async def app_context(access_log):
                 User(ja5t=["115"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
             ],
             [
-                User(ja5t=["111"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
                 User(ja5t=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
-                User(ja5t=["113"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
             ],
         ]
 
@@ -87,8 +85,6 @@ async def app_context(access_log):
                 User(ja5t=["215"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
             ],
             [
-                User(ja5t=["211"], value=Decimal(5), ip=[IPv4Address("127.0.0.1")]),
-                User(ja5t=["212"], value=Decimal(10), ip=[IPv6Address("ff00::0")]),
                 User(ja5t=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
             ],
         ]
@@ -103,12 +99,12 @@ async def app_context(access_log):
             FakeDetector.name(): FakeDetector(
                 access_log=access_log,
                 default_threshold=Decimal(1),
-                intersection_percent=Decimal(10),
+                intersection_percent=Decimal(25),
             ),
             FakeDetector2.name(): FakeDetector2(
                 access_log=access_log,
                 default_threshold=Decimal(20),
-                intersection_percent=Decimal(10),
+                intersection_percent=Decimal(25),
             ),
         },
         clickhouse_client=access_log,
@@ -144,12 +140,8 @@ async def test_block_users(app_context, lifespan):
     ]
     assert app_context.detectors["ip_time"].threshold == Decimal("25.80")
 
-    assert app_context.blockers["ipset"].block_called == 6
+    assert app_context.blockers["ipset"].block_called == 2
     assert set(app_context.blocked.values()) == {
-        User(ja5t=["111"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
         User(ja5t=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
         User(ja5t=["113"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
-        User(ja5t=["211"], value=Decimal(5), ip=[IPv4Address("127.0.0.1")]),
-        User(ja5t=["212"], value=Decimal(10), ip=[IPv6Address("ff00::0")]),
-        User(ja5t=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
     }

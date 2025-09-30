@@ -31,7 +31,7 @@ def detector(access_log):
     detector = FakeDetector(
         access_log=access_log,
         default_threshold=Decimal(0),
-        intersection_percent=Decimal(10),
+        intersection_percent=Decimal(25),
     )
     yield detector
 
@@ -82,18 +82,19 @@ def test_model_validation(detector):
             User(ip=[IPv4Address("127.0.0.2")], value=Decimal(10)),
             User(ip=[IPv4Address("127.0.0.3")], value=Decimal(10)),
             User(ip=[IPv4Address("127.0.0.4")], value=Decimal(10)),
+            User(ip=[IPv4Address("127.0.0.5")], value=Decimal(10)),
+            User(ip=[IPv4Address("127.0.0.6")], value=Decimal(10)),
+            User(ip=[IPv4Address("127.0.0.7")], value=Decimal(10)),
+            User(ip=[IPv4Address("127.0.0.8")], value=Decimal(10)),
         ],
         users_after=[
             User(ip=[IPv4Address("127.0.0.1")], value=Decimal(100)),
-            User(ip=[IPv4Address("127.0.0.2")], value=Decimal(100)),
-            User(ip=[IPv4Address("127.0.0.3")], value=Decimal(100)),
+            User(ip=[IPv4Address("127.0.0.4")], value=Decimal(10)),
         ],
     )
     assert len(res) == 3
     assert set(res) == {
         User(ip=[IPv4Address("127.0.0.1")]),
-        User(ip=[IPv4Address("127.0.0.2")]),
-        User(ip=[IPv4Address("127.0.0.3")]),
     }
 
 
@@ -106,14 +107,10 @@ def test_model_validation_one_user(detector):
             User(ip=[IPv4Address("127.0.0.4")], value=Decimal(10)),
         ],
         users_after=[
-            User(ip=[IPv4Address("127.0.0.1")], value=Decimal(20)),
-            User(ip=[IPv4Address("127.0.0.2")], value=Decimal(50)),
             User(ip=[IPv4Address("127.0.0.3")], value=Decimal(100)),
         ],
     )
     assert len(res) == 3
     assert set(res) == {
-        User(ip=[IPv4Address("127.0.0.1")]),
-        User(ip=[IPv4Address("127.0.0.2")]),
         User(ip=[IPv4Address("127.0.0.3")]),
     }
