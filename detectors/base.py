@@ -21,13 +21,13 @@ class BaseDetector(metaclass=abc.ABCMeta):
         self,
         access_log: ClickhouseAccessLog,
         default_threshold: Decimal = Decimal(10),
-        difference_multiplier: Decimal = Decimal(10),
+        intersection_percent: Decimal = Decimal(10),
         block_users_per_iteration: Decimal = Decimal(10),
     ):
         self._access_log = access_log
         self._default_threshold = default_threshold
         self._threshold = default_threshold
-        self._difference_multiplier = difference_multiplier
+        self._intersection_percent = intersection_percent
         self.block_limit_per_check = block_users_per_iteration
 
     @property
@@ -129,7 +129,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         intersection_keys = users_map_before.keys() & users_map_after.keys()
         intersection_keys_percent = len(intersection_keys) / len(users_before)
 
-        if intersection_keys_percent > self._difference_multiplier:
+        if intersection_keys_percent > self._intersection_percent:
             return []
 
         return users_after

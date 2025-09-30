@@ -48,15 +48,15 @@ class AppConfig(BaseSettings):
     training_mode_duration_min: int = 10
 
     detector_ip_rps_default_threshold: Decimal = Decimal(10)
-    detector_ip_rps_difference_multiplier: Decimal = Decimal(10)
+    detector_ip_rps_intersection_percent: Decimal = Decimal(10)
     detector_ip_rps_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ip_time_default_threshold: Decimal = Decimal(10)
-    detector_ip_time_difference_multiplier: Decimal = Decimal(10)
+    detector_ip_time_intersection_percent: Decimal = Decimal(10)
     detector_ip_time_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ip_errors_default_threshold: Decimal = Decimal(10)
-    detector_ip_errors_difference_multiplier: Decimal = Decimal(10)
+    detector_ip_errors_intersection_percent: Decimal = Decimal(10)
     detector_ip_errors_block_users_per_iteration: Decimal = Decimal(10)
     detector_ip_errors_allowed_statuses: list[int] = [
         100,
@@ -78,15 +78,15 @@ class AppConfig(BaseSettings):
     ]
 
     detector_ja5t_rps_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_rps_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_rps_intersection_percent: Decimal = Decimal(10)
     detector_ja5t_rps_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ja5t_time_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_time_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_time_intersection_percent: Decimal = Decimal(10)
     detector_ja5t_time_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ja5t_errors_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_errors_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5t_errors_intersection_percent: Decimal = Decimal(10)
     detector_ja5t_errors_block_users_per_iteration: Decimal = Decimal(10)
     detector_ja5t_errors_allowed_statuses: list[int] = [
         100,
@@ -108,15 +108,15 @@ class AppConfig(BaseSettings):
     ]
 
     detector_ja5h_rps_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_rps_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_rps_intersection_percent: Decimal = Decimal(10)
     detector_ja5h_rps_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ja5h_time_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_time_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_time_intersection_percent: Decimal = Decimal(10)
     detector_ja5h_time_block_users_per_iteration: Decimal = Decimal(10)
 
     detector_ja5h_errors_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_errors_difference_multiplier: Decimal = Decimal(10)
+    detector_ja5h_errors_intersection_percent: Decimal = Decimal(10)
     detector_ja5h_errors_block_users_per_iteration: Decimal = Decimal(10)
     detector_ja5h_errors_allowed_statuses: list[int] = [
         100,
@@ -138,7 +138,7 @@ class AppConfig(BaseSettings):
     ]
 
     detector_geoip_rps_default_threshold: Decimal = Decimal(10)
-    detector_geoip_difference_multiplier: Decimal = Decimal(10)
+    detector_geoip_intersection_percent: Decimal = Decimal(10)
     detector_geoip_block_users_per_iteration: Decimal = Decimal(10)
     detector_geoip_path_allowed_cities_list: str = (
         "/etc/tempesta-webshield/allowed_cities.txt"
