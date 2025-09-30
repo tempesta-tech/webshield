@@ -11,6 +11,10 @@ __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
+@pytest.fixture(autouse=True)
+def clean_allowed_cities_file():
+    os.remove("/tmp/allowed_cities_list.txt")
+
 @pytest.fixture
 async def detector(access_log):
     await access_log.conn.query(
