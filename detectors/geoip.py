@@ -106,6 +106,10 @@ class GeoIPDetector(BaseDetector):
         for user in users:
             city = self.find_city(str(user.ip[0]))
 
+            if city.city.name in self.loaded_cities:
+                logger.debug(f"GeoIP skipped user from allowed city {city.city.name}")
+                continue
+
             if city.city.name not in cities:
                 cities[city.city.name] = CityStats()
 
