@@ -37,6 +37,7 @@ async def detector(access_log):
         access_log=access_log,
         path_to_db=geoip_db_path,
         path_to_allowed_cities_list=allowed_cities,
+        intersection_percent=Decimal(50)
     )
     yield _detector
 
