@@ -112,9 +112,14 @@ class GeoIPDetector(BaseDetector):
             cities[city.city.name].users.append(user)
             cities[city.city.name].total_requests += user.value
 
+        key_to_remove = []
+
         for city in cities.keys():
             if cities[city].total_requests <= self.threshold:
-                cities.pop(city)
+                key_to_remove.append(city)
+
+        for key in key_to_remove:
+            del cities[key]
 
         return cities
 
