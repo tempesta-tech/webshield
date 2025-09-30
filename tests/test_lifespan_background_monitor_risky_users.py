@@ -144,7 +144,7 @@ async def test_block_users(app_context, lifespan):
     ]
     assert app_context.detectors["ip_time"].threshold == Decimal("25.80")
 
-    assert app_context.blockers["ipset"].block_called == 1
+    assert app_context.blockers["ipset"].block_called == 6
     assert set(app_context.blocked.values()) == [
         User(ja5t=["211"], value=Decimal(5), ip=[IPv4Address("127.0.0.1")]),
         User(ja5t=["212"], value=Decimal(10), ip=[IPv6Address("ff00::0")]),
