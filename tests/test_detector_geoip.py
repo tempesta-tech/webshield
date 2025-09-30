@@ -122,10 +122,12 @@ async def test_find_allowed_city(detector, additional_logs):
         f.write("Podgorica")
 
     await detector.prepare()
+    detector.threshold = Decimal(1)
+
     before, after = await detector.find_users(current_time=1751535020, interval=10)
 
     assert len(before) == 2
-    assert len(after) == 2
+    assert len(after) == 1
 
     blocked = detector.validate_model(users_before=before, users_after=after)
     assert blocked == []
