@@ -92,9 +92,10 @@ def test_model_validation(detector):
             User(ip=[IPv4Address("127.0.0.4")], value=Decimal(10)),
         ],
     )
-    assert len(res) == 3
+    assert len(res) == 2
     assert set(res) == {
         User(ip=[IPv4Address("127.0.0.1")]),
+        User(ip=[IPv4Address("127.0.0.4")], value=Decimal(10)),
     }
 
 
@@ -110,7 +111,7 @@ def test_model_validation_one_user(detector):
             User(ip=[IPv4Address("127.0.0.3")], value=Decimal(100)),
         ],
     )
-    assert len(res) == 3
+    assert len(res) == 1
     assert set(res) == {
         User(ip=[IPv4Address("127.0.0.3")]),
     }
