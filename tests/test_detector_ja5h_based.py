@@ -33,7 +33,7 @@ async def test_rps(access_log):
     detector = Ja5hRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
@@ -52,7 +52,7 @@ async def test_rps_with_user_agents(access_log):
     detector = Ja5hRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
@@ -70,7 +70,7 @@ async def test_rps_with_persistent_users(access_log):
     detector = Ja5hRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
@@ -83,7 +83,7 @@ async def test_errors(access_log):
     detector = Ja5hErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
@@ -104,7 +104,7 @@ async def test_errors_with_user_agents(access_log):
     detector = Ja5hErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
@@ -128,7 +128,7 @@ async def test_errors_with_persistent_users(access_log):
     detector = Ja5hErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
@@ -142,7 +142,7 @@ async def test_errors_forbidden_statuses(access_log):
     detector = Ja5hErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
         allowed_statues=[200],
     )
     users_before, users_after = await detector.find_users(
@@ -156,7 +156,7 @@ async def test_time(access_log):
     detector = Ja5hAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
@@ -175,7 +175,7 @@ async def test_time_with_user_agents(access_log):
     detector = Ja5hAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
@@ -198,7 +198,7 @@ async def test_time_with_persistent_users(access_log):
     detector = Ja5hAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
-        difference_multiplier=Decimal("10"),
+        intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5

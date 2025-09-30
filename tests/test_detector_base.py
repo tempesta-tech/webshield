@@ -31,7 +31,7 @@ def detector(access_log):
     detector = FakeDetector(
         access_log=access_log,
         default_threshold=Decimal(0),
-        difference_multiplier=Decimal(10),
+        intersection_percent=Decimal(10),
     )
     yield detector
 

@@ -79,12 +79,12 @@ def app_context(access_log, app_config):
             FakeDetector.name(): FakeDetector(
                 access_log=access_log,
                 default_threshold=Decimal(1),
-                difference_multiplier=Decimal(10),
+                intersection_percent=Decimal(10),
             ),
             FakeDetector2.name(): FakeDetector2(
                 access_log=access_log,
                 default_threshold=Decimal(20),
-                difference_multiplier=Decimal(10),
+                intersection_percent=Decimal(10),
             ),
         },
         clickhouse_client=access_log,
