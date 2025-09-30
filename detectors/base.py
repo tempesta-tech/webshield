@@ -127,7 +127,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         # keys intersection
         intersection_keys = users_map_before.keys() & users_map_after.keys()
-        intersection_keys_percent = len(intersection_keys) / len(users_before)
+        intersection_keys_percent = (len(intersection_keys) / len(users_before)) * 100
 
         if intersection_keys_percent > self._intersection_percent:
             return []
