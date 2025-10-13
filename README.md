@@ -3,6 +3,8 @@
 Block users by JA5T, JA5H, or IP based on Tempesta FW access 
 logs stored in the ClickHouse database.
 
+[**WIKI**](https://tempesta-tech.com/knowledge-base/Bot-Protection/)
+
 # How to run
 
 ### Requirements:
