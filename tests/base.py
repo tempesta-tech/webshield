@@ -43,8 +43,8 @@ class BaseTestCaseWithFilledDB(unittest.IsolatedAsyncioTestCase):
                 uri String,
                 referer String,
                 user_agent String,
-                ja5t UInt64,
-                ja5h UInt64,
+                tft UInt64,
+                tfh UInt64,
                 dropped_events UInt64,
                 PRIMARY KEY(timestamp)
             );

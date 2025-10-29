@@ -1,11 +1,9 @@
-import unittest
 from decimal import Decimal
 from ipaddress import IPv4Address
 
 import pytest
 
 from detectors.base import BaseDetector
-from utils.access_log import ClickhouseAccessLog
 from utils.datatypes import User
 
 __author__ = "Tempesta Technologies, Inc."

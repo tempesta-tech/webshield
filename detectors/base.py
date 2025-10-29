@@ -91,7 +91,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         )
 
     @property
-    def validation_key(self) -> typing.Literal['ip', 'ja5t', 'ja5h']:
+    def validation_key(self) -> typing.Literal['ip', 'tft', 'tfh']:
         """
         The user model validation field
         """
@@ -210,8 +210,8 @@ class SQLBasedDetector(BaseDetector):
 
         return [
             User(
-                ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
-                ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
+                tft=[str(hex(tft))[2:] for tft in user[0]],
+                tfh=[str(hex(tfh))[2:] for tfh in user[1]],
                 ip=user[2],
                 value=user[3],
                 # type=user[4]

@@ -13,18 +13,18 @@ from detectors.ip import (
     IPErrorRequestDetector,
     IPRPSDetector,
 )
-from detectors.ja5t import (
-    Ja5tAccumulativeTimeDetector,
-    Ja5tErrorRequestDetector,
-    Ja5tRPSDetector,
+from detectors.tft import (
+    TFtAccumulativeTimeDetector,
+    TFtErrorRequestDetector,
+    TFtRPSDetector,
 )
-from detectors.ja5h import (
-    Ja5hAccumulativeTimeDetector,
-    Ja5hErrorRequestDetector,
-    Ja5hRPSDetector,
+from detectors.tfh import (
+    TFhAccumulativeTimeDetector,
+    TFhErrorRequestDetector,
+    TFhRPSDetector,
 )
 from utils.access_log import ClickhouseAccessLog
-from utils.ja5_config import Ja5Config
+from utils.tf_config import TFConfig
 from utils.logger import logger
 from utils.user_agents import UserAgentsManager
 
@@ -50,13 +50,13 @@ if __name__ == "__main__":
     )
     context = AppContext(
         blockers={
-            blockers.Ja5tBlocker.name(): blockers.Ja5tBlocker(
-                config=Ja5Config(file_path=app_config.path_to_ja5t_config),
+            blockers.TFtBlocker.name(): blockers.TFtBlocker(
+                config=TFConfig(file_path=app_config.path_to_tft_config),
                 tempesta_executable_path=app_config.tempesta_executable_path,
                 tempesta_config_path=app_config.tempesta_config_path,
             ),
-            blockers.Ja5hBlocker.name(): blockers.Ja5hBlocker(
-                config=Ja5Config(file_path=app_config.path_to_ja5h_config),
+            blockers.TFhBlocker.name(): blockers.TFhBlocker(
+                config=TFConfig(file_path=app_config.path_to_tfh_config),
                 tempesta_executable_path=app_config.tempesta_executable_path,
                 tempesta_config_path=app_config.tempesta_config_path,
             ),
@@ -87,43 +87,43 @@ if __name__ == "__main__":
                 block_users_per_iteration=app_config.detector_ip_errors_block_users_per_iteration,
                 allowed_statues=app_config.detector_ip_errors_allowed_statuses,
             ),
-            Ja5tRPSDetector.name(): Ja5tRPSDetector(
+            TFtRPSDetector.name(): TFtRPSDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5t_rps_default_threshold,
-                intersection_percent=app_config.detector_ja5t_rps_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5t_rps_block_users_per_iteration,
+                default_threshold=app_config.detector_tft_rps_default_threshold,
+                intersection_percent=app_config.detector_tft_rps_intersection_percent,
+                block_users_per_iteration=app_config.detector_tft_rps_block_users_per_iteration,
             ),
-            Ja5tAccumulativeTimeDetector.name(): Ja5tAccumulativeTimeDetector(
+            TFtAccumulativeTimeDetector.name(): TFtAccumulativeTimeDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5t_time_default_threshold,
-                intersection_percent=app_config.detector_ja5t_time_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5t_time_block_users_per_iteration,
+                default_threshold=app_config.detector_tft_time_default_threshold,
+                intersection_percent=app_config.detector_tft_time_intersection_percent,
+                block_users_per_iteration=app_config.detector_tft_time_block_users_per_iteration,
             ),
-            Ja5tErrorRequestDetector.name(): Ja5tErrorRequestDetector(
+            TFtErrorRequestDetector.name(): TFtErrorRequestDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5t_errors_default_threshold,
-                intersection_percent=app_config.detector_ja5t_errors_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5t_errors_block_users_per_iteration,
-                allowed_statues=app_config.detector_ja5t_errors_allowed_statuses,
+                default_threshold=app_config.detector_tft_errors_default_threshold,
+                intersection_percent=app_config.detector_tft_errors_intersection_percent,
+                block_users_per_iteration=app_config.detector_tft_errors_block_users_per_iteration,
+                allowed_statues=app_config.detector_tft_errors_allowed_statuses,
             ),
-            Ja5hRPSDetector.name(): Ja5hRPSDetector(
+            TFhRPSDetector.name(): TFhRPSDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5h_rps_default_threshold,
-                intersection_percent=app_config.detector_ja5h_rps_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5h_rps_block_users_per_iteration,
+                default_threshold=app_config.detector_tfh_rps_default_threshold,
+                intersection_percent=app_config.detector_tfh_rps_intersection_percent,
+                block_users_per_iteration=app_config.detector_tfh_rps_block_users_per_iteration,
             ),
-            Ja5hAccumulativeTimeDetector.name(): Ja5hAccumulativeTimeDetector(
+            TFhAccumulativeTimeDetector.name(): TFhAccumulativeTimeDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5h_time_default_threshold,
-                intersection_percent=app_config.detector_ja5h_time_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5h_time_block_users_per_iteration,
+                default_threshold=app_config.detector_tfh_time_default_threshold,
+                intersection_percent=app_config.detector_tfh_time_intersection_percent,
+                block_users_per_iteration=app_config.detector_tfh_time_block_users_per_iteration,
             ),
-            Ja5hErrorRequestDetector.name(): Ja5tErrorRequestDetector(
+            TFhErrorRequestDetector.name(): TFtErrorRequestDetector(
                 access_log=clickhouse_client,
-                default_threshold=app_config.detector_ja5h_errors_default_threshold,
-                intersection_percent=app_config.detector_ja5h_errors_intersection_percent,
-                block_users_per_iteration=app_config.detector_ja5h_errors_block_users_per_iteration,
-                allowed_statues=app_config.detector_ja5h_errors_allowed_statuses,
+                default_threshold=app_config.detector_tfh_errors_default_threshold,
+                intersection_percent=app_config.detector_tfh_errors_intersection_percent,
+                block_users_per_iteration=app_config.detector_tfh_errors_block_users_per_iteration,
+                allowed_statues=app_config.detector_tfh_errors_allowed_statuses,
             ),
             GeoIPDetector.name(): GeoIPDetector(
                 access_log=clickhouse_client,

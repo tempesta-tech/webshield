@@ -53,7 +53,7 @@ class BaseBlocker(metaclass=abc.ABCMeta):
     def apply(self):
         """
         Apply blocking rules. Some blockers may block immediately
-        without calling this method, but others — like ja5t — apply
+        without calling this method, but others — like tft — apply
         rules only after multiple config changes.
         """
 

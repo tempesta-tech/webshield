@@ -3,10 +3,10 @@ from ipaddress import IPv4Address
 
 import pytest
 
-from detectors.ja5h import (
-    Ja5hAccumulativeTimeDetector,
-    Ja5hErrorRequestDetector,
-    Ja5hRPSDetector,
+from detectors.tft import (
+    TFtAccumulativeTimeDetector,
+    TFtErrorRequestDetector,
+    TFtRPSDetector,
 )
 from utils.datatypes import User
 
@@ -30,7 +30,7 @@ async def data(access_log):
 
 
 async def test_rps(access_log):
-    detector = Ja5hRPSDetector(
+    detector = TFtRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -40,7 +40,7 @@ async def test_rps(access_log):
     )
     assert users_before == []
     assert len(users_after) == 1
-    assert users_after[0].ja5t == ['d']
+    assert users_after[0].tft == ['d']
     assert set(users_after[0].ip) == {
         IPv4Address("127.0.0.3"),
         IPv4Address("127.0.0.4"),
@@ -49,7 +49,7 @@ async def test_rps(access_log):
 
 async def test_rps_with_user_agents(access_log):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent4"]])
-    detector = Ja5hRPSDetector(
+    detector = TFtRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -58,7 +58,7 @@ async def test_rps_with_user_agents(access_log):
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == [User(ja5t=['d'], ja5h=['17'], ip=[IPv4Address("127.0.0.3")])]
+    assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
 
 
 async def test_rps_with_persistent_users(access_log):
@@ -67,7 +67,7 @@ async def test_rps_with_persistent_users(access_log):
             ["127.0.0.3"],
         ]
     )
-    detector = Ja5hRPSDetector(
+    detector = TFtRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -80,7 +80,7 @@ async def test_rps_with_persistent_users(access_log):
 
 
 async def test_errors(access_log):
-    detector = Ja5hErrorRequestDetector(
+    detector = TFtErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -92,8 +92,8 @@ async def test_errors(access_log):
     assert users_before == []
     assert users_after == [
         User(
-            ja5t=['d'],
-            ja5h=['17'],
+            tft=['d'],
+            tfh=['17'],
             ip=[IPv4Address("127.0.0.4"), IPv4Address("127.0.0.3")],
         )
     ]
@@ -101,7 +101,7 @@ async def test_errors(access_log):
 
 async def test_errors_with_user_agents(access_log):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent3"]])
-    detector = Ja5hErrorRequestDetector(
+    detector = TFtErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -112,7 +112,7 @@ async def test_errors_with_user_agents(access_log):
     )
     assert users_before == []
     assert len(users_after) == 1
-    assert users_after[0].ja5t == ['d']
+    assert users_after[0].tft == ['d']
     assert set(users_after[0].ip) == {
         IPv4Address("127.0.0.3"),
         IPv4Address("127.0.0.4"),
@@ -125,7 +125,7 @@ async def test_errors_with_persistent_users(access_log):
             ["127.0.0.3"],
         ]
     )
-    detector = Ja5hErrorRequestDetector(
+    detector = TFtErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -139,7 +139,7 @@ async def test_errors_with_persistent_users(access_log):
 
 
 async def test_errors_forbidden_statuses(access_log):
-    detector = Ja5hErrorRequestDetector(
+    detector = TFtErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
@@ -153,7 +153,7 @@ async def test_errors_forbidden_statuses(access_log):
 
 
 async def test_time(access_log):
-    detector = Ja5hAccumulativeTimeDetector(
+    detector = TFtAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
         intersection_percent=Decimal("10"),
@@ -163,7 +163,7 @@ async def test_time(access_log):
     )
     assert users_before == []
     assert len(users_after) == 1
-    assert users_after[0].ja5t == ['d']
+    assert users_after[0].tft == ['d']
     assert set(users_after[0].ip) == {
         IPv4Address("127.0.0.3"),
         IPv4Address("127.0.0.4"),
@@ -172,7 +172,7 @@ async def test_time(access_log):
 
 async def test_time_with_user_agents(access_log):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent3"]])
-    detector = Ja5hAccumulativeTimeDetector(
+    detector = TFtAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
         intersection_percent=Decimal("10"),
@@ -182,7 +182,7 @@ async def test_time_with_user_agents(access_log):
     )
     assert users_before == []
     assert len(users_after) == 1
-    assert users_after[0].ja5t == ['d']
+    assert users_after[0].tft == ['d']
     assert set(users_after[0].ip) == {
         IPv4Address("127.0.0.3"),
         IPv4Address("127.0.0.4"),
@@ -195,7 +195,7 @@ async def test_time_with_persistent_users(access_log):
             ["127.0.0.3"],
         ]
     )
-    detector = Ja5hAccumulativeTimeDetector(
+    detector = TFtAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
         intersection_percent=Decimal("10"),

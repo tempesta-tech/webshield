@@ -39,7 +39,7 @@ async def test_rps(access_log):
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == [User(ja5t=['d'], ja5h=['17'], ip=[IPv4Address("127.0.0.3")])]
+    assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
 
 
 async def test_rps_with_user_agents(access_log):
@@ -85,7 +85,7 @@ async def test_errors(access_log):
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == [User(ja5t=['d'], ja5h=['17'], ip=[IPv4Address("127.0.0.3")])]
+    assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
 
 
 async def test_errors_with_user_agents(access_log):
@@ -146,7 +146,7 @@ async def test_time(access_log):
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == [User(ja5t=['d'], ja5h=['17'], ip=[IPv4Address("127.0.0.3")])]
+    assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
 
 
 async def test_time_with_user_agents(access_log):

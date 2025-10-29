@@ -31,8 +31,8 @@ class IPRPSDetector(SQLBasedDetector):
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                groupUniqArray(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                groupUniqArray(tfh) tfh,
                 array(address) address,
                 count(1) value
             FROM prepared_users
@@ -61,8 +61,8 @@ class IPErrorRequestDetector(IPRPSDetector):
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                groupUniqArray(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                groupUniqArray(tfh) tfh,
                 array(address) address,
                 countIf(status not in ({statuses})) value
             FROM prepared_users
@@ -86,8 +86,8 @@ class IPAccumulativeTimeDetector(IPRPSDetector):
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                groupUniqArray(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                groupUniqArray(tfh) tfh,
                 array(address) address,
                 sum(response_time) value
             FROM prepared_users

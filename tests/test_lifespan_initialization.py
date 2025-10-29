@@ -62,15 +62,15 @@ async def app_context(access_log, user_agent_empty_file_path) -> AppContext:
             return
 
         def info(self) -> dict[int, User]:
-            return {2: User(ja5t=["4444"])}
+            return {2: User(tft=["4444"])}
 
         def load(self) -> dict[int, User]:
-            return {1: User(ja5t=["3333"])}
+            return {1: User(tft=["3333"])}
 
     class FakeBlocker2(FakeBlocker):
         @staticmethod
         def name() -> str:
-            return "ja5t"
+            return "tft"
 
     context = AppContext(
         blockers={

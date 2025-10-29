@@ -9,8 +9,8 @@ __license__ = "GPL2"
 
 
 class AppConfig(BaseSettings):
-    path_to_ja5t_config: str = "/etc/tempesta/ja5t/blocked.conf"
-    path_to_ja5h_config: str = "/etc/tempesta/ja5h/blocked.conf"
+    path_to_tft_config: str = "/etc/tempesta/tft/blocked.conf"
+    path_to_tfh_config: str = "/etc/tempesta/tfh/blocked.conf"
 
     clickhouse_host: str = "192.168.0.104"
     clickhouse_port: int = 8123
@@ -28,17 +28,17 @@ class AppConfig(BaseSettings):
             "ip_rps",
             "ip_time",
             "ip_errors",
-            "ja5t_rps",
-            "ja5t_time",
-            "ja5t_errors",
-            "ja5h_rps",
-            "ja5h_time",
-            "ja5h_errors",
+            "tft_rps",
+            "tft_time",
+            "tft_errors",
+            "tfh_rps",
+            "tfh_time",
+            "tfh_errors",
             "geoip",
         ]
-    ] = {"ja5t_rps", "ja5t_time", "ja5t_errors"}
+    ] = {"tft_rps", "tft_time", "tft_errors"}
 
-    blocking_types: set[Literal["ja5t", "ja5h", "ipset", "nftables"]] = {"ja5t"}
+    blocking_types: set[Literal["tft", "tfh", "ipset", "nftables"]] = {"tft"}
     blocking_window_duration_sec: int = 10
     blocking_ipset_name: str = "tempesta_blocked_ips"
     blocking_time_min: int = 60
@@ -77,18 +77,18 @@ class AppConfig(BaseSettings):
         403,
     ]
 
-    detector_ja5t_rps_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_rps_intersection_percent: Decimal = Decimal(10)
-    detector_ja5t_rps_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tft_rps_default_threshold: Decimal = Decimal(10)
+    detector_tft_rps_intersection_percent: Decimal = Decimal(10)
+    detector_tft_rps_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5t_time_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_time_intersection_percent: Decimal = Decimal(10)
-    detector_ja5t_time_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tft_time_default_threshold: Decimal = Decimal(10)
+    detector_tft_time_intersection_percent: Decimal = Decimal(10)
+    detector_tft_time_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5t_errors_default_threshold: Decimal = Decimal(10)
-    detector_ja5t_errors_intersection_percent: Decimal = Decimal(10)
-    detector_ja5t_errors_block_users_per_iteration: Decimal = Decimal(10)
-    detector_ja5t_errors_allowed_statuses: list[int] = [
+    detector_tft_errors_default_threshold: Decimal = Decimal(10)
+    detector_tft_errors_intersection_percent: Decimal = Decimal(10)
+    detector_tft_errors_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tft_errors_allowed_statuses: list[int] = [
         100,
         101,
         200,
@@ -107,18 +107,18 @@ class AppConfig(BaseSettings):
         403,
     ]
 
-    detector_ja5h_rps_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_rps_intersection_percent: Decimal = Decimal(10)
-    detector_ja5h_rps_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tfh_rps_default_threshold: Decimal = Decimal(10)
+    detector_tfh_rps_intersection_percent: Decimal = Decimal(10)
+    detector_tfh_rps_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5h_time_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_time_intersection_percent: Decimal = Decimal(10)
-    detector_ja5h_time_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tfh_time_default_threshold: Decimal = Decimal(10)
+    detector_tfh_time_intersection_percent: Decimal = Decimal(10)
+    detector_tfh_time_block_users_per_iteration: Decimal = Decimal(10)
 
-    detector_ja5h_errors_default_threshold: Decimal = Decimal(10)
-    detector_ja5h_errors_intersection_percent: Decimal = Decimal(10)
-    detector_ja5h_errors_block_users_per_iteration: Decimal = Decimal(10)
-    detector_ja5h_errors_allowed_statuses: list[int] = [
+    detector_tfh_errors_default_threshold: Decimal = Decimal(10)
+    detector_tfh_errors_intersection_percent: Decimal = Decimal(10)
+    detector_tfh_errors_block_users_per_iteration: Decimal = Decimal(10)
+    detector_tfh_errors_allowed_statuses: list[int] = [
         100,
         101,
         200,

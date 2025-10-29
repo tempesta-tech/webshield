@@ -1,6 +1,6 @@
 # Tempesta WebShield
 
-Block users by JA5T, JA5H, or IP based on Tempesta FW access 
+Block users by TFT, TFH, or IP based on Tempesta FW access 
 logs stored in the ClickHouse database.
 
 [**WIKI**](https://tempesta-tech.com/knowledge-base/Bot-Protection/)
@@ -58,19 +58,19 @@ isort .
 # How to block
 
 ### Prepare Tempesta FW config
-It's useful to define separate directories for different groups of JA5 hashes  
+It's useful to define separate directories for different groups of TF hashes  
 in the Tempesta FW configuration file (/etc/tempesta/tempesta_fw.conf).
 ```nginx
-ja5t {
-    !include /etc/tempesta/ja5t/
+tft {
+    !include /etc/tempesta/tft/
 }
-ja5h {
-    !include /etc/tempesta/ja5h/
+tfh {
+    !include /etc/tempesta/tfh/
 }
 ```
 Then add 2 files
-- /etc/tempesta/ja5t/blocked.conf
-- /etc/tempesta/ja5h/blocked.conf
+- /etc/tempesta/tft/blocked.conf
+- /etc/tempesta/tfh/blocked.conf
 
 These files should be used by default by the WebShield 
 to add new blocking hashes.
