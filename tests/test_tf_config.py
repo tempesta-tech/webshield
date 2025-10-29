@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from utils.ja5_config import Ja5Config, Ja5Hash
+from utils.tf_config import TFConfig, TFHash
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
@@ -26,22 +26,22 @@ def config_path():
 
 def test_config_does_not_exists():
     with pytest.raises(FileNotFoundError):
-        config = Ja5Config("/tmp/non-existing.conf")
+        config = TFConfig("/tmp/non-existing.conf")
         config.verify_file()
 
 
 def test_load_hashes_from_file(config_path):
-    config = Ja5Config(config_path)
+    config = TFConfig(config_path)
     config.load()
 
     assert len(config.hashes) == 1
 
 
 def test_dump_file(config_path):
-    config = Ja5Config(config_path)
+    config = TFConfig(config_path)
     config.load()
 
-    config.hashes = {"test": Ja5Hash(value="0", connections=1, packets=1)}
+    config.hashes = {"test": TFHash(value="0", connections=1, packets=1)}
     config.dump()
 
     with open(config_path) as f:
@@ -51,11 +51,11 @@ def test_dump_file(config_path):
 
 
 def test_modification(config_path):
-    config = Ja5Config(config_path)
+    config = TFConfig(config_path)
     config.load()
     assert config.need_dump is False
 
-    config.add(Ja5Hash(value="100", connections=1, packets=2))
+    config.add(TFHash(value="100", connections=1, packets=2))
     assert config.need_dump == True
 
     config.dump()

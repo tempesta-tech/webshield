@@ -5,25 +5,25 @@ __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
-class Ja5hRPSDetector(IPRPSDetector):
+class TFhRPSDetector(IPRPSDetector):
     @staticmethod
     def name() -> str:
-        return "ja5h_rps"
+        return "tfh_rps"
 
     @property
     def validation_key(self) -> str:
-        return 'ja5h'
+        return 'tfh'
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                array(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                array(tfh) tfh,
                 groupUniqArray(address) address,
                 count(1) value
             FROM prepared_users
-            GROUP by ja5h
+            GROUP by tfh
             HAVING  
                 value >= {self.threshold}
             LIMIT {self.block_limit_per_check}
@@ -33,26 +33,26 @@ class Ja5hRPSDetector(IPRPSDetector):
         )
 
 
-class Ja5hErrorRequestDetector(Ja5hRPSDetector):
+class TFhErrorRequestDetector(TFhRPSDetector):
     def __init__(self, *args, allowed_statues: list[int] = (), **kwargs):
         super().__init__(*args, **kwargs)
         self.allowed_statues = allowed_statues
 
     @staticmethod
     def name() -> str:
-        return "ja5h_errors"
+        return "tfh_errors"
 
     def get_request(self, start_at, finish_at):
         statuses = ", ".join(list(map(str, self.allowed_statues)))
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                array(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                array(tfh) tfh,
                 groupUniqArray(address) address,
                 countIf(status not in ({statuses})) value
             FROM prepared_users
-            GROUP by ja5h
+            GROUP by tfh
             HAVING  
                 value >= {self.threshold}
             LIMIT {self.block_limit_per_check}
@@ -62,22 +62,22 @@ class Ja5hErrorRequestDetector(Ja5hRPSDetector):
         )
 
 
-class Ja5hAccumulativeTimeDetector(Ja5hRPSDetector):
+class TFhAccumulativeTimeDetector(TFhRPSDetector):
 
     @staticmethod
     def name() -> str:
-        return "ja5h_time"
+        return "tfh_time"
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
             f"""
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                array(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                array(tfh) tfh,
                 groupUniqArray(address) address,
                 sum(response_time) value
             FROM prepared_users
-            GROUP by ja5h
+            GROUP by tfh
             HAVING  
                 value >= {self.threshold}
             LIMIT {self.block_limit_per_check}

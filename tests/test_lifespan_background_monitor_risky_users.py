@@ -36,10 +36,10 @@ async def app_context(access_log):
             return
 
         def info(self) -> dict[int, User]:
-            return {2: User(ja5t=["4444"])}
+            return {2: User(tft=["4444"])}
 
         def load(self) -> dict[int, User]:
-            return {1: User(ja5t=["3333"])}
+            return {1: User(tft=["3333"])}
 
     class FrozenTimeAppContext(AppContext):
         def __init__(self, *args, **kwargs):
@@ -53,13 +53,13 @@ async def app_context(access_log):
     class FakeDetector(BaseDetector):
         groups = [
             [
-                User(ja5t=["111"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
-                User(ja5t=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
-                User(ja5t=["113"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
-                User(ja5t=["115"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
+                User(tft=["111"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
+                User(tft=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+                User(tft=["113"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
+                User(tft=["115"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
             ],
             [
-                User(ja5t=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+                User(tft=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
             ],
         ]
 
@@ -79,13 +79,13 @@ async def app_context(access_log):
     class FakeDetector2(FakeDetector):
         groups = [
             [
-                User(ja5t=["211"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
-                User(ja5t=["212"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
-                User(ja5t=["213"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
-                User(ja5t=["215"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
+                User(tft=["211"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
+                User(tft=["212"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+                User(tft=["213"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
+                User(tft=["215"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
             ],
             [
-                User(ja5t=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
+                User(tft=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
             ],
         ]
 
@@ -142,6 +142,6 @@ async def test_block_users(app_context, lifespan):
 
     assert app_context.blockers["ipset"].block_called == 2
     assert set(app_context.blocked.values()) == {
-        User(ja5t=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
-        User(ja5t=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
+        User(tft=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+        User(tft=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
     }

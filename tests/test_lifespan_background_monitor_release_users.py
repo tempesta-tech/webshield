@@ -47,10 +47,10 @@ def app_context(app_config, access_log):
             self.release_called += 1
 
         def info(self) -> dict[int, User]:
-            return {2: User(ja5t=["4444"])}
+            return {2: User(tft=["4444"])}
 
         def load(self) -> dict[int, User]:
-            return {1: User(ja5t=["3333"])}
+            return {1: User(tft=["3333"])}
 
     class FrozenTimeAppContext(AppContext):
         def __init__(self, *args, **kwargs):
@@ -71,13 +71,13 @@ def app_context(app_config, access_log):
 
 @pytest.fixture
 def lifespan(app_context):
-    user1 = User(ja5t=["4441"], blocked_at=1751535000)
+    user1 = User(tft=["4441"], blocked_at=1751535000)
     app_context.blocked[hash(user1)] = user1
 
-    user2 = User(ja5t=["4442"], blocked_at=1751535005)
+    user2 = User(tft=["4442"], blocked_at=1751535005)
     app_context.blocked[hash(user2)] = user2
 
-    user3 = User(ja5t=["4443"], blocked_at=1751535009)
+    user3 = User(tft=["4443"], blocked_at=1751535009)
     app_context.blocked[hash(user3)] = user3
 
     yield BackgroundReleaseUsersMonitoring(context=app_context)

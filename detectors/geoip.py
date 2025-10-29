@@ -1,13 +1,10 @@
 import os
-import time
 from dataclasses import dataclass, field
 from decimal import Decimal
 
 from geoip2.database import City, Reader
 
-from config import AppConfig
 from detectors.base import BaseDetector
-from utils.access_log import ClickhouseAccessLog
 from utils.datatypes import User
 from utils.logger import logger
 
@@ -81,8 +78,8 @@ class GeoIPDetector(BaseDetector):
                     and timestamp < {finish_at}
             )
             SELECT 
-                groupUniqArray(ja5t) ja5t, 
-                groupUniqArray(ja5h) ja5h,
+                groupUniqArray(tft) tft, 
+                groupUniqArray(tfh) tfh,
                 address address,
                 count(1) value
             FROM prepared_users
@@ -92,8 +89,8 @@ class GeoIPDetector(BaseDetector):
 
         return [
             User(
-                ja5t=[str(hex(ja5t))[2:] for ja5t in user[0]],
-                ja5h=[str(hex(ja5h))[2:] for ja5h in user[1]],
+                tft=[str(hex(tft))[2:] for tft in user[0]],
+                tfh=[str(hex(tfh))[2:] for tfh in user[1]],
                 ip=[user[2]],
                 value=user[3],
             )

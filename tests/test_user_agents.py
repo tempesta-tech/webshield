@@ -1,9 +1,7 @@
 import os
-import unittest
 
 import pytest
 
-from utils.access_log import ClickhouseAccessLog
 from utils.user_agents import UserAgentsManager
 
 __author__ = "Tempesta Technologies, Inc."

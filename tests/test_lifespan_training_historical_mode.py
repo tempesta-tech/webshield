@@ -55,9 +55,9 @@ def app_context(access_log, app_config):
             self.start_at = start_at
             self.finish_at = finish_at
             return [
-                User(ja5t=["111"], value=Decimal(1)),
-                User(ja5t=["112"], value=Decimal(2)),
-                User(ja5t=["113"], value=Decimal(3)),
+                User(tft=["111"], value=Decimal(1)),
+                User(tft=["112"], value=Decimal(2)),
+                User(tft=["113"], value=Decimal(3)),
             ]
 
     class FakeDetector2(FakeDetector):
@@ -69,9 +69,9 @@ def app_context(access_log, app_config):
             self.start_at = start_at
             self.finish_at = finish_at
             return [
-                User(ja5t=["111"], value=Decimal(100)),
-                User(ja5t=["112"], value=Decimal(200)),
-                User(ja5t=["113"], value=Decimal(300)),
+                User(tft=["111"], value=Decimal(100)),
+                User(tft=["112"], value=Decimal(200)),
+                User(tft=["113"], value=Decimal(300)),
             ]
 
     context = FrozenTimeAppContext(

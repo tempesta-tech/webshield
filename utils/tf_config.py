@@ -11,15 +11,15 @@ __license__ = "GPL2"
 
 
 @dataclass
-class Ja5Hash:
+class TFHash:
     value: str
     connections: int
     packets: int
 
 
-class Ja5Config:
+class TFConfig:
     """
-    Tempesta JA5 Config Manager
+    Tempesta TF Config Manager
     """
 
     hash_pattern = re.compile(
@@ -31,18 +31,18 @@ class Ja5Config:
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.hashes: Dict[str, Ja5Hash] = {}
+        self.hashes: Dict[str, TFHash] = {}
         self.need_dump: bool = False
 
     @staticmethod
-    def format_line(ja5_hash: Ja5Hash) -> str:
+    def format_line(tf_hash: TFHash) -> str:
         """
-        Create a string representation of a JA5 hash.
+        Create a string representation of a TF hash.
 
-        :param ja5_hash: JA5 hash value.
-        :return: Formatted string representation of the JA5 hash.
+        :param tf_hash: TF hash value.
+        :return: Formatted string representation of the TF hash.
         """
-        return f"hash {ja5_hash.value} {ja5_hash.connections} {ja5_hash.packets};\n"
+        return f"hash {tf_hash.value} {tf_hash.connections} {tf_hash.packets};\n"
 
     def verify_file(self):
         """
@@ -60,7 +60,7 @@ class Ja5Config:
 
     def load(self):
         """
-        Parse the JA5 configuration file and store the loaded hashes.
+        Parse the TF configuration file and store the loaded hashes.
         """
         with open(self.file_path, "r") as f:
             for line in f.readlines():
@@ -71,7 +71,7 @@ class Ja5Config:
                     continue
 
                 hash_value = result.group("hash")
-                self.hashes[hash_value] = Ja5Hash(
+                self.hashes[hash_value] = TFHash(
                     value=result.group("hash"),
                     connections=result.group("connections"),
                     packets=result.group("packets"),
@@ -79,7 +79,7 @@ class Ja5Config:
 
     def dump(self):
         """
-        Dump the local storage of JA5 hashes into the configuration file.
+        Dump the local storage of TF hashes into the configuration file.
         """
         with open(self.file_path, "w") as f:
             for value in self.hashes.values():
@@ -87,29 +87,29 @@ class Ja5Config:
 
         self.need_dump = False
 
-    def exists(self, ja5_hash: str) -> bool:
+    def exists(self, tf_hash: str) -> bool:
         """
-        Check if a JA5 hash exists in local storage.
+        Check if a TF hash exists in local storage.
 
-        :param ja5_hash: JA5 hash value.
+        :param tf_hash: TF hash value.
         :return: True if the hash exists, False otherwise.
         """
-        return ja5_hash in self.hashes
+        return tf_hash in self.hashes
 
-    def add(self, ja5_hash: Ja5Hash):
+    def add(self, tf_hash: TFHash):
         """
-        Add a new JA5 hash to local storage.
+        Add a new TF hash to local storage.
 
-        :param ja5_hash: JA5 hash value.
+        :param tf_hash: TF hash value.
         """
-        self.hashes[ja5_hash.value] = ja5_hash
+        self.hashes[tf_hash.value] = tf_hash
         self.need_dump = True
 
-    def remove(self, ja5_hash: str):
+    def remove(self, tf_hash: str):
         """
-        Remove a JA5 hash from local storage.
+        Remove a TF hash from local storage.
 
-        :param ja5_hash: JA5 hash value.
+        :param tf_hash: TF hash value.
         """
-        self.hashes.pop(ja5_hash)
+        self.hashes.pop(tf_hash)
         self.need_dump = True

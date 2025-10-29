@@ -1,6 +1,6 @@
 from .ipset import IpSetBlocker
-from .ja5h import Ja5hBlocker
-from .ja5t import Ja5tBlocker
+from .tfh import TFhBlocker
+from .tft import TFtBlocker
 from .nft import NFTBlocker
 
 __author__ = "Tempesta Technologies, Inc."

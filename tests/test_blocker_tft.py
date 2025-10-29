@@ -3,9 +3,9 @@ import os
 import pytest
 
 from blockers.base import PreparationError
-from blockers.ja5h import Ja5hBlocker
+from blockers.tft import TFtBlocker
 from utils.datatypes import User
-from utils.ja5_config import Ja5Config, Ja5Hash
+from utils.tf_config import TFConfig, TFHash
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
@@ -14,12 +14,12 @@ __license__ = "GPL2"
 
 @pytest.fixture
 def config_path() -> str:
-    return "/tmp/test_ja5h_config"
+    return "/tmp/test_tfh_config"
 
 
 @pytest.fixture
 def blocker(config_path):
-    blocker = Ja5hBlocker(Ja5Config(config_path))
+    blocker = TFtBlocker(TFConfig(config_path))
     open(config_path, "w").close()
 
     yield blocker
@@ -33,25 +33,25 @@ def test_load(blocker, config_path):
 
     users = blocker.load()
     assert len(users) == 2
-    assert [item.ja5h for item in users.values()] == [["1111"], ["2222"]]
+    assert [item.tft for item in users.values()] == [["1111"], ["2222"]]
 
 
 def test_block(blocker):
-    user = User(ja5h=["11111"])
+    user = User(tft=["11111"])
     blocker.block(user)
     assert len(blocker.config.hashes) == 1
     assert blocker.config.hashes["11111"].value == "11111"
 
 
 def test_release(blocker):
-    user = User(ja5h=["3333"])
-    blocker.config.hashes["3333"] = Ja5Hash(value="3333", connections=0, packets=0)
+    user = User(tft=["3333"])
+    blocker.config.hashes["3333"] = TFHash(value="3333", connections=0, packets=0)
     blocker.release(user)
     assert len(blocker.config.hashes) == 0
 
 
 def test_apply(blocker, config_path):
-    blocker.block(User(ja5h=["11111"]))
+    blocker.block(User(tft=["11111"]))
     blocker.apply()
 
     with open(config_path, "r") as f:
@@ -61,10 +61,10 @@ def test_apply(blocker, config_path):
 
 
 def test_info(blocker):
-    blocker.block(User(ja5h=["11111"]))
+    blocker.block(User(tft=["11111"]))
     users = blocker.info()
     assert len(users) == 1
-    assert users[0].ja5h == ["11111"]
+    assert users[0].tft == ["11111"]
 
 
 def test_prepare_no_tempesta_service(blocker):

@@ -3,7 +3,7 @@ import time
 
 from blockers.base import BaseBlocker, PreparationError
 from utils.datatypes import User
-from utils.ja5_config import Ja5Config, Ja5Hash
+from utils.tf_config import TFConfig, TFHash
 from utils.logger import logger
 from utils.shell import run_in_shell
 
@@ -12,10 +12,10 @@ __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
-class Ja5tBlocker(BaseBlocker):
+class TFtBlocker(BaseBlocker):
     def __init__(
         self,
-        config: Ja5Config,
+        config: TFConfig,
         tempesta_executable_path: str = None,
         tempesta_config_path: str = None,
     ):
@@ -25,7 +25,7 @@ class Ja5tBlocker(BaseBlocker):
 
     @staticmethod
     def name() -> str:
-        return "ja5t"
+        return "tft"
 
     def __tempesta_app_exists(self) -> bool:
         if self.tempesta_executable_path and os.path.isfile(
@@ -53,21 +53,21 @@ class Ja5tBlocker(BaseBlocker):
         result = dict()
 
         for hash_value in self.config.hashes:
-            user = User(ja5t=[hash_value], blocked_at=current_time)
+            user = User(tft=[hash_value], blocked_at=current_time)
             result[hash(user)] = user
 
         return result
 
     def block(self, user: User):
-        for hash_value in user.ja5t:
+        for hash_value in user.tft:
             if self.config.exists(hash_value):
                 continue
 
-            self.config.add(Ja5Hash(value=hash_value, packets=0, connections=0))
-            logger.warning(f"Blocked user {user} by ja5t")
+            self.config.add(TFHash(value=hash_value, packets=0, connections=0))
+            logger.warning(f"Blocked user {user} by tft")
 
     def release(self, user: User):
-        for hash_value in user.ja5t:
+        for hash_value in user.tft:
             if not self.config.exists(hash_value):
                 continue
 
@@ -93,4 +93,4 @@ class Ja5tBlocker(BaseBlocker):
         )
 
     def info(self) -> list[User]:
-        return [User(ja5t=[ja5_hash.value]) for ja5_hash in self.config.hashes.values()]
+        return [User(tft=[tf_hash.value]) for tf_hash in self.config.hashes.values()]
