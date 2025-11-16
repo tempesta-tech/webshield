@@ -1,5 +1,6 @@
 import os
 import re
+import stat
 from dataclasses import dataclass
 from typing import Dict
 
@@ -19,7 +20,7 @@ class TFHash:
 
 class TFConfig:
     """
-    Tempesta TF Config Manager
+    Tempesta Fingerprints (TF) Config Manager
     """
 
     hash_pattern = re.compile(
@@ -47,10 +48,21 @@ class TFConfig:
     def verify_file(self):
         """
         Check whether the file exists and has the correct permissions.
+        Creates an empty file with correct permissions if it doesn't exist.
+        Raises an exception if the directory doesn't exist.
         """
+        directory = os.path.dirname(self.file_path)
+        if directory and not os.path.isdir(directory):
+            logger.error(f"Directory `{directory}` does not exist")
+            raise FileNotFoundError(f"Directory `{directory}` does not exist")
+
         if not os.path.isfile(self.file_path):
-            logger.error(f"File `{self.file_path}` does not exist")
-            raise FileNotFoundError
+            # Create empty file with correct permissions
+            with open(self.file_path, "w") as f:
+                pass
+            file_permissions = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+            os.chmod(self.file_path, file_permissions)
+            logger.info(f"Created empty file `{self.file_path}` with permissions {oct(file_permissions)}")
 
         if not os.access(self.file_path, os.W_OK):
             logger.error(

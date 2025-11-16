@@ -34,7 +34,7 @@ class TFtBlocker(BaseBlocker):
             return True
 
         return (
-            run_in_shell("service tempesta status", raise_error=False).returncode == 0
+            run_in_shell("systemctl status tempesta-fw", raise_error=False).returncode == 0
         )
 
     def prepare(self):
@@ -87,7 +87,7 @@ class TFtBlocker(BaseBlocker):
             )
 
         run_in_shell(
-            "service tempesta --reload",
+            "systemctl reload tempesta-fw",
             error="Tempesta FW could not be reloaded",
             raise_error=False,
         )
