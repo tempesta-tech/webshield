@@ -10,7 +10,7 @@ __license__ = "GPL2"
 
 def test_run_app():
     """
-    Just check that there are not errors
+    Just check that there are no errors
     """
     cwd = os.getcwd()
     shutil.copy(f"{cwd}/example.env", "/tmp/config")

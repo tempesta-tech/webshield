@@ -1,29 +1,27 @@
 # Tempesta WebShield
 
-Block users by TFT, TFH, or IP based on Tempesta FW access 
-logs stored in the ClickHouse database.
+Automatic detection and blocking bad bots (DDoS, shopping bots, scrappers,
+booking bots and others) by TLS and HTTP fingerprints or IP based on Tempesta FW
+access logs stored in the Clickhouse database.
 
-[**WIKI**](https://tempesta-tech.com/knowledge-base/Bot-Protection/)
+## Wiki
+* [How it works](https://tempesta-tech.com/knowledge-base/Bot-Protection/#how-it-works)
+* [Installation and quick start](https://tempesta-tech.com/knowledge-base/Bot-Protection/#quick-start)
+* [Configuration](https://tempesta-tech.com/knowledge-base/Bot-Protection/#historical-mode)
+* [Use cases](https://tempesta-tech.com/knowledge-base/Bot-Protection/#how-to-defend-your-app)
 
-# How to run
 
-### Requirements:
+## Requirements
 
 - Python 3.12 <=
 - [Tempesta FW](https://github.com/tempesta-tech/tempesta) 0.8.0 <=
 - Clickhouse 25.6.0 <=
 
-### Run manually
-```bash
-python3 -m venv tempesta-webshield
-source tempesta-webshield/bin/activate
-pip install -r requirements.txt
-cp example.env /etc/tempesta-webshield/app.env
-touch /etc/tempesta-webshield/allow_user_agents.txt
-python3 app.py 
-```
 
-### Run tests
+## Run tests
+
+To run the tests you need to copy GeoLite2-City.mmdb to `tests/` directory.
+
 ```bash
 # run all tests with a logging level INFO
 pytest
@@ -50,28 +48,8 @@ pytest -s -vvv tests/test_app.py::test_run_app
 pytest -s -vvv --pdb
 ```
 
-### Format project
+## Format project
 ```bash
 black .
 isort .
 ```
-
-# How to block
-
-### Prepare Tempesta FW config
-It's useful to define separate directories for different groups of TF hashes  
-in the Tempesta FW configuration file (/etc/tempesta/tempesta_fw.conf).
-```nginx
-tft {
-    !include /etc/tempesta/tft/
-}
-tfh {
-    !include /etc/tempesta/tfh/
-}
-```
-Then add 2 files
-- /etc/tempesta/tft/blocked.conf
-- /etc/tempesta/tfh/blocked.conf
-
-These files should be used by default by the WebShield 
-to add new blocking hashes.
