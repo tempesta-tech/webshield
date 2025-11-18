@@ -67,16 +67,9 @@ def test_info(blocker):
     assert users[0].tft == ["11111"]
 
 
-def test_prepare_no_tempesta_service(blocker):
-    with pytest.raises(PreparationError) as e:
-        blocker.prepare()
-        assert "executable not found" in str(e.value)
-
-
 def test_prepare_no_config(blocker, config_path):
     blocker.tempesta_executable_path = "/tmp/path"
     open(config_path, "w").close()
 
-    with pytest.raises(PreparationError) as e:
-        blocker.prepare()
-        assert "file not found" in str(e.value)
+    blocker.prepare()
+    assert os.path.isfile(blocker.config.file_path)

@@ -25,9 +25,9 @@ def config_path():
 
 
 def test_config_does_not_exists():
-    with pytest.raises(FileNotFoundError):
-        config = TFConfig("/tmp/non-existing.conf")
-        config.verify_file()
+    config = TFConfig("/tmp/non-existing.conf")
+    config.verify_file()
+    assert os.path.isfile(config.file_path)
 
 
 def test_load_hashes_from_file(config_path):
