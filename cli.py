@@ -7,6 +7,7 @@ from utils.logger import logger
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
+__version__ = "0.1.0"
 
 
 @dataclass
@@ -22,8 +23,12 @@ class CommandLineArgs:
         :return: key-value arguments
         """
         parser = argparse.ArgumentParser(
-            description="WebShield. Analyzes traffic using Tempesta FW access log data stored in ClickHouse",
+            description=f"""
+Tempesta WebShield {__version__} (this version is experimental and should not be used in production).
+Dynamically analyzes web traffic and blocks bad bots.
+""",
             epilog="./app.py --config=/etc/tempesta-webshield/config.env",
+            formatter_class=argparse.RawDescriptionHelpFormatter,
             add_help=True,
         )
         parser.add_argument(

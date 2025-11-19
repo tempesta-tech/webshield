@@ -4,6 +4,8 @@ Automatic detection and blocking bad bots (DDoS, shopping bots, scrappers,
 booking bots and others) by TLS and HTTP fingerprints or IP based on Tempesta FW
 access logs stored in the Clickhouse database.
 
+*The current version 0.1 is experimental and should not be used in production.*
+
 ## Wiki
 * [How it works](https://tempesta-tech.com/knowledge-base/Bot-Protection/#how-it-works)
 * [Installation and quick start](https://tempesta-tech.com/knowledge-base/Bot-Protection/#quick-start)
