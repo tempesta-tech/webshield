@@ -12,7 +12,7 @@ class AppConfig(BaseSettings):
     path_to_tft_config: str = "/etc/tempesta/tft/blocked.conf"
     path_to_tfh_config: str = "/etc/tempesta/tfh/blocked.conf"
 
-    clickhouse_host: str = "192.168.0.104"
+    clickhouse_host: str = "127.0.0.1"
     clickhouse_port: int = 8123
     clickhouse_user: str = "default"
     clickhouse_password: str = ""

@@ -39,7 +39,7 @@ class TFtBlocker(BaseBlocker):
 
     def prepare(self):
         if not self.__tempesta_app_exists():
-            raise PreparationError("Tempesta executable not found")
+            raise PreparationError(f"Tempesta executable not found at {self.tempesta_executable_path}")
 
         try:
             self.config.verify_file()
