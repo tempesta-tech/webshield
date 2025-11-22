@@ -183,7 +183,12 @@ class BackgroundRiskyUsersMonitoring(BaseState):
     async def _update_threshold_and_block_users(self):
         """
         Periodically run the detectors, identify risky users, and update
-        their thresholds based on the current situation.
+        their thresholds on previous time slice (users_before) and block by
+        values for the current time slice (users_after).
+
+        TODO: this method handles TRAINING_MODE="off" case, so intuitivelly we
+        should not learn from traffic and just introduce a configuration for an
+        expected traffic, e.g. DETECTOR_IP_RPS_DEFAULT_MEAN=100.
         """
 
         current_time = self.context.utc_now
@@ -203,7 +208,7 @@ class BackgroundRiskyUsersMonitoring(BaseState):
 
         for detector, user_bulk in zip(detectors, users_bulks):
             users_before, users_after = user_bulk
-            detector.update_threshold(users_after)
+            detector.update_threshold(users_before)
             blocking_users_bulks.append(
                 detector.validate_model(
                     users_before=users_before,
@@ -217,6 +222,8 @@ class BackgroundRiskyUsersMonitoring(BaseState):
         )
 
     async def run(self, testing: bool = False) -> None:
+        # TODO: remove testing code - usually we do our best to not to have testing code
+        # in production code to keep it as small and simple as possible.
         if testing:
             return await self._update_threshold_and_block_users()
 

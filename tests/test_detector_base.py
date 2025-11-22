@@ -47,7 +47,7 @@ def test_threshold(detector):
 
 async def test_find_users(detector):
     await detector.find_users(0, 10)
-    assert detector.groups == [[-20, -10], [-10, 0]]
+    assert detector.groups == [[-30, -20], [-10, 0]]
 
 
 def test_arithmetic_mean(detector):
