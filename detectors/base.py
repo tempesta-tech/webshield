@@ -155,6 +155,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         The arithmetic mean of the users' activity parameter
         """
+        if not values:
+            return Decimal(0)
+
         return Decimal(sum(values) / Decimal(len(values))).quantize(Decimal("0.01"))
 
     @staticmethod
@@ -162,6 +165,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         The standard deviation (1 sigma) of the users' activity parameter
         """
+        if not values:
+            return Decimal(0)
+
         deviation = sum(
             map(lambda val: math.pow(val - arithmetic_mean, Decimal(2)), values)
         )
