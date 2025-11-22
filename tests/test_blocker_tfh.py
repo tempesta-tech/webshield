@@ -68,7 +68,8 @@ def test_info(blocker):
 
 
 def test_prepare_no_config(blocker, config_path):
-    blocker.tempesta_executable_path = "/tmp/path"
+    # Test for config file, so mock the exec path with any executable.
+    blocker.tempesta_executable_path = "/bin/sh"
     open(config_path, "w").close()
 
     blocker.prepare()

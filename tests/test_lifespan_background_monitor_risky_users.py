@@ -124,21 +124,21 @@ def test_active_detectors(app_context):
 
 
 async def test_block_users(app_context, lifespan):
-    app_context.time = 1751535020
+    app_context.time = 1751535030
 
     await lifespan.run(testing=True)
 
     assert app_context.detectors["ip_rps"].passed_time == [
         (1751535000, 1751535010),
-        (1751535010, 1751535020),
+        (1751535020, 1751535030),
     ]
-    assert app_context.detectors["ip_rps"].threshold == Decimal("2.0")
+    assert app_context.detectors["ip_rps"].threshold == Decimal("3.08")
 
     assert app_context.detectors["ip_time"].passed_time == [
         (1751535000, 1751535010),
-        (1751535010, 1751535020),
+        (1751535020, 1751535030),
     ]
-    assert app_context.detectors["ip_time"].threshold == Decimal("30.00")
+    assert app_context.detectors["ip_time"].threshold == Decimal("3.08")
 
     assert app_context.blockers["ipset"].block_called == 2
     assert set(app_context.blocked.values()) == {
