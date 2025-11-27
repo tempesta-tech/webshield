@@ -77,13 +77,16 @@ class BaseDetector(metaclass=abc.ABCMeta):
         Get two groups of the most risky users for different time periods
         for further analysis.
 
+        Use 1 time slice gap to eliminate races, when a user appears at the
+        border between the time slices.
+
         :param current_time: used as the current time in functional tests
         :param interval: used as the current time in functional tests
         :return: list of risky users
         """
         return await asyncio.gather(
             self.fetch_for_period(
-                start_at=current_time - 2 * interval, finish_at=current_time - interval
+                start_at=current_time - 3 * interval, finish_at=current_time - 2 * interval
             ),
             self.fetch_for_period(
                 start_at=current_time - interval, finish_at=current_time
@@ -104,13 +107,17 @@ class BaseDetector(metaclass=abc.ABCMeta):
         The model is an algorithm used to identify users relevant for blocking.
 
         It takes two groups of users from different past time periods and compares them.
-        If the users from one period ago overlap with the users from two periods ago by at least [DETECTOR]_INTERSECTION_PERCENT,
-        we assume this situation is normal since we are seeing the same users.
-        However, if the users from one period ago were not in the previous group and their overlap is less than [DETECTOR]_INTERSECTION_PERCENT,
-        we assume this is unusual traffic and block the entire new group of users.
+        If the users from one period ago overlap with the users from two periods
+        ago by at least [DETECTOR]_INTERSECTION_PERCENT, we assume this situation
+        is normal since we are seeing the same users.
+        However, if the users from one period ago were not in the previous group
+        and their overlap is less than [DETECTOR]_INTERSECTION_PERCENT, we assume
+        this is unusual traffic and block the entire new group of users.
 
-        :param users_before: the group of users from two periods ago who generated the highest traffic
-        :param users_after: the group of users from the previous period who generated the highest traffic
+        :param users_before: the group of users from two periods ago who generated
+                             the highest traffic
+        :param users_after: the group of users from the previous period who generated
+                            the highest traffic
 
         :return: a list of users to be blocked
         """
@@ -135,6 +142,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         intersection_keys = users_map_before.keys() & users_map_after.keys()
         intersection_keys_percent = (len(intersection_keys) / len(users_before)) * 100
 
+        logger.debug(f"{self.name()}: intersection_keys_percent={intersection_keys_percent}:"
+                     f" users_before_n={len(users_map_before.keys())}"
+                     f" users_after_n={len(users_map_after.keys())}")
         if intersection_keys_percent > self._intersection_percent:
             return []
 
@@ -145,6 +155,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         The arithmetic mean of the users' activity parameter
         """
+        if not values:
+            return Decimal(0)
+
         return Decimal(sum(values) / Decimal(len(values))).quantize(Decimal("0.01"))
 
     @staticmethod
@@ -152,6 +165,9 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
         The standard deviation (1 sigma) of the users' activity parameter
         """
+        if not values:
+            return Decimal(0)
+
         deviation = sum(
             map(lambda val: math.pow(val - arithmetic_mean, Decimal(2)), values)
         )
@@ -183,7 +199,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
             values=values, arithmetic_mean=arithmetic_mean
         )
         self.threshold = arithmetic_mean + standard_deviation
-        logger.debug(f'{self.name()} has new threshold: {self.threshold}')
+        logger.debug(f"{self.name()} has new threshold {self.threshold} ="
+                     f" {arithmetic_mean}(mean) + {standard_deviation}(std.dev.)")
 
 
 class SQLBasedDetector(BaseDetector):

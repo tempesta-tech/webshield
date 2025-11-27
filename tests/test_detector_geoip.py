@@ -74,14 +74,14 @@ async def additional_logs(access_log):
         (cast('1751535000' as DateTime64(3, 'UTC')), '179.143.107.11', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 11, 21, 0),
         (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 11, 21, 0),
         (cast('1751535000' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
-        (cast('1751535015' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent', 12, 22, 0),
+        (cast('1751535025' as DateTime64(3, 'UTC')), '79.143.107.10', 0, 1, 400, 0, 10, 'default', '/', '/', 'UserAgent', 13, 23, 0)
         """
     )
 
@@ -104,7 +104,7 @@ async def test_prepare_no_geodb(detector: GeoIPDetector):
 
 async def test_find_low_rps(detector):
     await detector.prepare()
-    before, after = await detector.find_users(current_time=1751535020, interval=10)
+    before, after = await detector.find_users(current_time=1751535030, interval=10)
     assert len(before) == 1
     assert len(after) == 0
 
@@ -116,7 +116,7 @@ async def test_find(detector, additional_logs):
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535020, interval=10)
+    before, after = await detector.find_users(current_time=1751535030, interval=10)
 
     assert len(before) == 2
     assert len(after) == 1
@@ -134,7 +134,7 @@ async def test_find_allowed_city(detector, additional_logs):
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535020, interval=10)
+    before, after = await detector.find_users(current_time=1751535030, interval=10)
 
     assert len(before) == 2
     assert len(after) == 1
@@ -147,7 +147,7 @@ async def test_update_thresholds(detector, additional_logs):
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    _, after = await detector.find_users(current_time=1751535020, interval=10)
+    _, after = await detector.find_users(current_time=1751535030, interval=10)
     assert len(after) == 1
 
     detector.update_threshold(users=after)
