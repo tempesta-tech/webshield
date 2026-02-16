@@ -62,23 +62,40 @@ class TFtErrorRequestDetector(TFtRPSDetector):
         )
 
 
-class TFtAccumulativeTimeDetector(TFtRPSDetector):
+class TFtAvgTimeDetector(TFtRPSDetector):
 
     @staticmethod
     def name() -> str:
-        return "tft_time"
+        return "tft_avg_time"
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
             f"""
+            , top_accumulative_response_time as (
+                SELECT 
+                    tft, 
+                    groupUniqArray(tfh) tfh,
+                    groupUniqArray(address) address,
+                    sum(response_time) value
+                FROM prepared_users
+                GROUP by tft
+            ),
+            top_rps as (
+                SELECT 
+                    tft, 
+                    count() value
+                FROM prepared_users
+                GROUP by tft
+            )
             SELECT 
-                array(tft) tft, 
-                groupUniqArray(tfh) tfh,
-                groupUniqArray(address) address,
-                sum(response_time) value
-            FROM prepared_users
-            GROUP by tft
-            HAVING  
+                array(tart.tft) tft,
+                tart.tfh,
+                tart.address,
+                tart.value/tr.value value
+            FROM top_accumulative_response_time tart
+            JOIN top_rps tr
+                ON tart.tft = tr.tft
+            WHERE 
                 value >= {self.threshold}
             LIMIT {self.block_limit_per_check}
             """,
