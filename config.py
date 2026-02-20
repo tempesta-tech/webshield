@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic_settings import BaseSettings
 
 __author__ = "Tempesta Technologies, Inc."
-__copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
+__copyright__ = "Copyright (C) 2023-2026 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
@@ -35,6 +35,7 @@ class AppConfig(BaseSettings):
             "tfh_time",
             "tfh_errors",
             "geoip",
+            "behavior",
         ]
     ] = {"tft_rps", "tft_time", "tft_errors"}
 
@@ -144,6 +145,8 @@ class AppConfig(BaseSettings):
         "/etc/tempesta-webshield/allowed_cities.txt"
     )
     detector_geoip_path_to_db: str = "/etc/tempesta-webshield/city.db"
+
+    detector_behavior_paths: str = "/"
 
     tempesta_executable_path: str = ""
     tempesta_config_path: str = ""
