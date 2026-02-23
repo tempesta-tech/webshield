@@ -30,9 +30,8 @@ sudo setup.sh
 ## Prepare
 Before running the application, you need to prepare Tempesta FW:
 
-1. Configure Tempesta Logger 
-   (https://tempesta-tech.com/knowledge-base/Handling-clients/#access-log and https://tempesta-tech.com/knowledge-base/).
-2. Modify your Tempesta FW configuration and add the `tfh` and `tft` include directories.(https://tempesta-tech.com/knowledge-base/Bot-Protection/#3-add-blocking-rule-sets-to-tempesta-fw-configuration-file)
+1. [Configure Tempesta Logger](https://tempesta-tech.com/knowledge-base/Handling-clients/#access-log).
+2. Modify your Tempesta FW configuration and add the `tfh` and `tft` [include directories](https://tempesta-tech.com/knowledge-base/Bot-Protection/#3-add-blocking-rule-sets-to-tempesta-fw-configuration-file)
 3. Start Tempesta FW with Tempesta Logger enabled
 4. Start ClickHouse DB and ensure the `access_log` table exists.
 
@@ -55,7 +54,6 @@ To run the tests you need to copy GeoLite2-City.mmdb to `tests/` directory.
 ```bash
 # run all tests with a logging level INFO
 pytest
-
 ```
 
 ## Format project

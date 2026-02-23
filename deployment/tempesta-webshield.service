@@ -1,5 +1,5 @@
 [Unit]
-Description=Simple DDoS Protection
+Description=Simple Bot Protection
 After=network.target
 StartLimitIntervalSec=0
 
