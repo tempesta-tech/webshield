@@ -15,7 +15,7 @@ from detectors.ip import (
     IPRPSDetector,
 )
 from detectors.tft import (
-    TFtAccumulativeTimeDetector,
+    TFtAvgTimeDetector,
     TFtErrorRequestDetector,
     TFtRPSDetector,
 )
@@ -32,9 +32,6 @@ from utils.user_agents import UserAgentsManager
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
-
-import asyncio
-import signal
 
 
 shutdown_task = None
@@ -126,7 +123,7 @@ async def main(app_config):
                 intersection_percent=app_config.detector_tft_rps_intersection_percent,
                 block_users_per_iteration=app_config.detector_tft_rps_block_users_per_iteration,
             ),
-            TFtAccumulativeTimeDetector.name(): TFtAccumulativeTimeDetector(
+            TFtAvgTimeDetector.name(): TFtAvgTimeDetector(
                 access_log=clickhouse_client,
                 default_threshold=app_config.detector_tft_time_default_threshold,
                 intersection_percent=app_config.detector_tft_time_intersection_percent,

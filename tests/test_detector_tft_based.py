@@ -4,7 +4,7 @@ from ipaddress import IPv4Address
 import pytest
 
 from detectors.tft import (
-    TFtAccumulativeTimeDetector,
+    TFtAvgTimeDetector,
     TFtErrorRequestDetector,
     TFtRPSDetector,
 )
@@ -25,6 +25,15 @@ async def data(access_log):
         (cast('1751535007' as DateTime64(3, 'UTC')), '127.0.0.3', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent2', 13, 23, 0),
         (cast('1751535007' as DateTime64(3, 'UTC')), '127.0.0.3', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent3', 13, 23, 0),
         (cast('1751535007' as DateTime64(3, 'UTC')), '127.0.0.4', 0, 1, 200, 0, 10, 'default', '/', '/', 'UserAgent4', 13, 23, 0)
+        """
+    )
+
+@pytest.fixture
+async def time_data(access_log):
+    await access_log.conn.query(
+        """
+        insert into access_log values
+        (cast('1751535007' as DateTime64(3, 'UTC')), '127.0.0.4', 0, 1, 200, 0, 60, 'default', '/', '/', 'UserAgent4', 13, 23, 0)
         """
     )
 
@@ -152,10 +161,16 @@ async def test_errors_forbidden_statuses(access_log):
     assert users_after == []
 
 
-async def test_time(access_log):
-    detector = TFtAccumulativeTimeDetector(
+async def test_time(access_log, time_data):
+    """
+    UserAgent2/3/4 with TFT 13 generates
+    1. most requests, TFT COUNT = 4
+    2. top accum response time = TFT SUM(TIME) = 90
+    3. TFT 13 is in TOP of COUNT and SUM(TIME). AVG TIME = SUM(TIME)/COUNT = 90/4 = 22.5
+    """
+    detector = TFtAvgTimeDetector(
         access_log=access_log,
-        default_threshold=Decimal("15"),
+        default_threshold=Decimal("20"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
@@ -170,11 +185,18 @@ async def test_time(access_log):
     }
 
 
-async def test_time_with_user_agents(access_log):
+async def test_time_with_user_agents(access_log, time_data):
+    """
+    UserAgent2/4 with TFT 13 generates
+    1. most requests, TFT COUNT = 3
+    2. top accum response time = TFT SUM(TIME) = 80
+    3. TFT 13 is in TOP of COUNT and SUM(TIME). AVG TIME = SUM(TIME)/COUNT = 80/3 = 26
+    """
+
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent3"]])
-    detector = TFtAccumulativeTimeDetector(
+    detector = TFtAvgTimeDetector(
         access_log=access_log,
-        default_threshold=Decimal("15"),
+        default_threshold=Decimal("20"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
@@ -189,19 +211,30 @@ async def test_time_with_user_agents(access_log):
     }
 
 
-async def test_time_with_persistent_users(access_log):
+async def test_time_with_persistent_users(access_log, time_data):
+    """
+    UserAgent4 with TFT 13 generates
+    1. most requests, TFT COUNT = 2
+    2. top accum response time = TFT SUM(TIME) = 70
+    3. TFT 13 is in TOP of COUNT and SUM(TIME). AVG TIME = SUM(TIME)/COUNT = 70/2 = 35
+    """
+
     await access_log.persistent_users_table_insert(
         [
             ["127.0.0.3"],
         ]
     )
-    detector = TFtAccumulativeTimeDetector(
+    detector = TFtAvgTimeDetector(
         access_log=access_log,
-        default_threshold=Decimal("15"),
+        default_threshold=Decimal("20"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
         current_time=1751535010, interval=5
     )
     assert users_before == []
-    assert users_after == []
+    assert len(users_after) == 1
+    assert users_after[0].tft == ['d']
+    assert set(users_after[0].ip) == {
+        IPv4Address("127.0.0.4"),
+    }
