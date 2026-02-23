@@ -1,0 +1,17 @@
+[Unit]
+Description=Simple Bot Protection
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=root
+KillSignal=SIGQUIT
+WorkingDirectory=/opt/tempesta-webshield/source
+ExecStart=/opt/tempesta-webshield/venv/bin/python app.py
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
