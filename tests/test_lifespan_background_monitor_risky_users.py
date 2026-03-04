@@ -1,13 +1,20 @@
-from decimal import Decimal
 
 import pytest
+from datetime import datetime, timezone
+from decimal import Decimal
 from ipaddress import IPv4Address, IPv6Address
 
 from blockers.base import BaseBlocker
 from config import AppConfig
 from core.context import AppContext
 from core.lifespan import BackgroundRiskyUsersMonitoring
-from detectors.base import BaseDetector
+from detectors.base import (
+    BaseDetector,
+    IPLogMixing,
+    TFtLogMixing,
+    TFhLogMixing,
+    BlockingReason,
+)
 from utils.datatypes import User
 
 __author__ = "Tempesta Technologies, Inc."
@@ -17,7 +24,7 @@ __license__ = "GPL2"
 
 @pytest.fixture
 async def app_context(access_log):
-    class FakeBlocker(BaseBlocker):
+    class FakeBlocker(IPLogMixing, BaseBlocker):
         def __init__(self):
             self.prepare_called = False
             self.block_called = 0
@@ -50,7 +57,18 @@ async def app_context(access_log):
         def utc_now(self) -> int:
             return self.time
 
-    class FakeDetector(BaseDetector):
+    class BaseFakeDetector(BaseDetector):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.passed_time = []
+
+        async def fetch_for_period(self, start_at: int, finish_at: int) -> list[User]:
+            self.passed_time.append((start_at, finish_at))
+            head, *self.groups = self.groups
+            return head
+
+    class FakeDetector(IPLogMixing, BaseFakeDetector):
+        blocking_reason = BlockingReason.rps
         groups = [
             [
                 User(tft=["111"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
@@ -63,20 +81,12 @@ async def app_context(access_log):
             ],
         ]
 
-        def __init__(self, *args, **kwargs):
-            super(FakeDetector, self).__init__(*args, **kwargs)
-            self.passed_time = []
-
         @staticmethod
         def name() -> str:
             return "ip_rps"
 
-        async def fetch_for_period(self, start_at: int, finish_at: int) -> list[User]:
-            self.passed_time.append((start_at, finish_at))
-            head, *self.groups = self.groups
-            return head
-
-    class FakeDetector2(FakeDetector):
+    class FakeDetector2(TFtLogMixing, BaseFakeDetector):
+        blocking_reason = BlockingReason.accum_time
         groups = [
             [
                 User(tft=["211"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
@@ -93,6 +103,24 @@ async def app_context(access_log):
         def name() -> str:
             return "ip_time"
 
+    class FakeDetector3(TFhLogMixing, BaseFakeDetector):
+        blocking_reason = BlockingReason.errors
+        groups = [
+            [
+                User(tfh=["211"], value=Decimal(1), ip=[IPv4Address("127.0.0.1")]),
+                User(tfh=["212"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+                User(tfh=["213"], value=Decimal(3), ip=[IPv4Address("127.0.0.3")]),
+                User(tfh=["215"], value=Decimal(3), ip=[IPv6Address("ff00::1")]),
+            ],
+            [
+                User(tfh=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
+            ],
+        ]
+
+        @staticmethod
+        def name() -> str:
+            return "ip_errors"
+
     context = FrozenTimeAppContext(
         blockers={FakeBlocker.name(): FakeBlocker()},
         detectors={
@@ -106,9 +134,14 @@ async def app_context(access_log):
                 default_threshold=Decimal(20),
                 intersection_percent=Decimal(25),
             ),
+            FakeDetector3.name(): FakeDetector3(
+                access_log=access_log,
+                default_threshold=Decimal(20),
+                intersection_percent=Decimal(25),
+            ),
         },
         clickhouse_client=access_log,
-        app_config=AppConfig(detectors={"ip_rps", "ip_time"}, blocking_types={"ipset"}),
+        app_config=AppConfig(detectors={"ip_rps", "ip_time", "ip_errors"}, blocking_types={"ipset"}),
     )
     yield context
 
@@ -120,10 +153,10 @@ async def lifespan(app_context):
 
 
 def test_active_detectors(app_context):
-    assert len(app_context.active_detectors) == 2
+    assert len(app_context.active_detectors) == 3
 
 
-async def test_block_users(app_context, lifespan):
+async def test_block_users(app_context, lifespan, blocking_table):
     app_context.time = 1751535030
 
     await lifespan.run(testing=True)
@@ -140,8 +173,39 @@ async def test_block_users(app_context, lifespan):
     ]
     assert app_context.detectors["ip_time"].threshold == Decimal("3.08")
 
-    assert app_context.blockers["ipset"].block_called == 2
+    assert app_context.blockers["ipset"].block_called == 3
     assert set(app_context.blocked.values()) == {
-        User(tft=["112"], value=Decimal(2), ip=[IPv6Address("ff00::0")]),
+        User(tft=["112"], value=Decimal(2), ip=[IPv6Address("ff00::")]),
         User(tft=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
+        User(tfh=["213"], value=Decimal(30), ip=[IPv4Address("127.0.0.3")]),
     }
+
+
+async def test_blocked_users_logs(app_context, lifespan, blocking_table, access_log):
+    app_context.time = 1751535030
+    as_datetime = datetime.fromtimestamp(app_context.time, tz=timezone.utc).replace(tzinfo=None)
+
+    await lifespan.run(testing=True)
+
+    blocked_users = await access_log.blocked_users_get_all()
+    assert len(blocked_users) == 3
+
+    blocked_users.sort(key=lambda user: user.reason)
+
+    assert blocked_users[0].reason == BlockingReason.rps.value
+    assert blocked_users[0].address == IPv6Address("ff00::")
+    assert blocked_users[0].tft == 0
+    assert blocked_users[0].tfh == 0
+    assert blocked_users[0].timestamp == as_datetime
+
+    assert blocked_users[1].reason == BlockingReason.errors.value
+    assert blocked_users[1].address == IPv6Address("::")
+    assert blocked_users[1].tft == 0
+    assert blocked_users[1].tfh == 531
+    assert blocked_users[1].timestamp == as_datetime
+
+    assert blocked_users[2].reason == BlockingReason.accum_time.value
+    assert blocked_users[2].address == IPv6Address("::")
+    assert blocked_users[2].tft == 531
+    assert blocked_users[2].tfh == 0
+    assert blocked_users[2].timestamp == as_datetime

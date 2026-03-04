@@ -3,7 +3,7 @@ from ipaddress import IPv4Address
 
 import pytest
 
-from detectors.base import BaseDetector
+from detectors.base import BaseDetector, IPLogMixing
 from utils.datatypes import User
 
 __author__ = "Tempesta Technologies, Inc."
@@ -13,7 +13,7 @@ __license__ = "GPL2"
 
 @pytest.fixture
 def detector(access_log):
-    class FakeDetector(BaseDetector):
+    class FakeDetector(IPLogMixing, BaseDetector):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.groups = []

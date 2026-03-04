@@ -2,6 +2,7 @@ import abc
 import asyncio
 
 from core.context import AppContext
+from utils.access_log import BlockedUser
 from utils.datatypes import User
 from utils.logger import logger
 
@@ -45,6 +46,7 @@ class Initialization(BaseState):
         await self.context.clickhouse_client.user_agents_table_truncate()
         await self.context.clickhouse_client.persistent_users_table_create()
         await self.context.clickhouse_client.persistent_users_table_truncate()
+        await self.context.clickhouse_client.blocked_users_create_table()
         logger.debug("Prepared tables.")
 
     async def _load_whitelisted_user_agents(self):
@@ -180,6 +182,9 @@ class BackgroundRiskyUsersMonitoring(BaseState):
             f"Total blocked: {blocked_users}. "
         )
 
+    async def _log_blocked_users(self, logs: list[BlockedUser]):
+        await self.context.clickhouse_client.blocked_users_add(logs)
+
     async def _update_threshold_and_block_users(self):
         """
         Periodically run the detectors, identify risky users, and update
@@ -205,21 +210,32 @@ class BackgroundRiskyUsersMonitoring(BaseState):
         )
 
         blocking_users_bulks = []
+        blocking_users_logs = []
 
         for detector, user_bulk in zip(detectors, users_bulks):
             users_before, users_after = user_bulk
             detector.update_threshold(users_before)
-            blocking_users_bulks.append(
-                detector.validate_model(
-                    users_before=users_before,
-                    users_after=users_after,
-                )
+
+            users_to_block = detector.validate_model(
+                users_before=users_before,
+                users_after=users_after,
             )
+
+            if not users_to_block:
+                continue
+
+            blocking_users_bulks.append(users_to_block)
+
+            for user in users_to_block:
+                blocking_users_logs.append(
+                    detector.convert_to_log_db_record(
+                        user, detector.blocking_reason, current_time))
 
         self.__block_users(
             blocking_users_bulks=blocking_users_bulks,
             current_time=current_time
         )
+        await self._log_blocked_users(blocking_users_logs)
 
     async def run(self, testing: bool = False) -> None:
         # TODO: remove testing code - usually we do our best to not to have testing code
@@ -236,7 +252,8 @@ class BackgroundReleaseUsersMonitoring(BaseState):
 
     async def _risk_clients_release(self):
         """
-        Check the blocking time of currently blocked clients and unblock those whose blocking time has expired.
+        Check the blocking time of currently blocked clients and unblock those
+        whose blocking time has expired.
         """
         current_time = self.context.utc_now
         blocking_seconds = self.context.app_config.blocking_time_sec

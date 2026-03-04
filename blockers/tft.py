@@ -48,30 +48,35 @@ class TFtBlocker(BaseBlocker):
             raise PreparationError(e)
 
     def load(self) -> dict[int, User]:
+        name = self.name()
         self.config.load()
         current_time = int(time.time())
         result = dict()
 
         for hash_value in self.config.hashes:
-            user = User(tft=[hash_value], blocked_at=current_time)
+            params = {name: [hash_value], 'blocked_at': current_time}
+            user = User(**params)
             result[hash(user)] = user
 
         return result
 
     def block(self, user: User):
-        for hash_value in user.tft:
+        name = self.name()
+        for hash_value in getattr(user, name):
             if self.config.exists(hash_value):
                 continue
 
             self.config.add(TFHash(value=hash_value, packets=0, connections=0))
-            logger.warning(f"Blocked user {user} by tft")
+            logger.warning(f"Blocked user {user} by {name}")
 
     def release(self, user: User):
-        for hash_value in user.tft:
+        name = self.name()
+        for hash_value in getattr(user, name):
             if not self.config.exists(hash_value):
                 continue
 
             self.config.remove(hash_value)
+            logger.warning(f"Released user {user} by {name}")
 
     def apply(self):
         if not self.config.need_dump:
@@ -93,4 +98,5 @@ class TFtBlocker(BaseBlocker):
         )
 
     def info(self) -> list[User]:
-        return [User(tft=[tf_hash.value]) for tf_hash in self.config.hashes.values()]
+        name = self.name()
+        return [User(**{name: [tf_hash.value]}) for tf_hash in self.config.hashes.values()]

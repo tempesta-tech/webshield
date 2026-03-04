@@ -5,7 +5,7 @@ import pytest
 from config import AppConfig
 from core.context import AppContext
 from core.lifespan import HistoricalModeTraining
-from detectors.base import BaseDetector
+from detectors.base import BaseDetector, IPLogMixing
 from utils.datatypes import User
 
 __author__ = "Tempesta Technologies, Inc."
@@ -32,7 +32,7 @@ def app_config():
 
 @pytest.fixture
 def app_context(access_log, app_config):
-    class FakeDetector(BaseDetector):
+    class FakeDetector(IPLogMixing, BaseDetector):
         def __init__(self, *args, **kwargs):
             super(FakeDetector, self).__init__(*args, **kwargs)
             self.start_at = None
