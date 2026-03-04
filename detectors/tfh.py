@@ -1,11 +1,17 @@
-from detectors.ip import IPRPSDetector
+from detectors.ip import (
+    IPRPSDetector,
+    BlockingReason,
+)
+from detectors.base import TFhLogMixing
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
-class TFhRPSDetector(IPRPSDetector):
+class TFhRPSDetector(TFhLogMixing, IPRPSDetector):
+    blocking_reason = BlockingReason.rps
+
     @staticmethod
     def name() -> str:
         return "tfh_rps"
@@ -34,6 +40,8 @@ class TFhRPSDetector(IPRPSDetector):
 
 
 class TFhErrorRequestDetector(TFhRPSDetector):
+    blocking_reason = BlockingReason.errors
+
     def __init__(self, *args, allowed_statues: list[int] = (), **kwargs):
         super().__init__(*args, **kwargs)
         self.allowed_statues = allowed_statues
@@ -63,6 +71,7 @@ class TFhErrorRequestDetector(TFhRPSDetector):
 
 
 class TFhAccumulativeTimeDetector(TFhRPSDetector):
+    blocking_reason = BlockingReason.errors
 
     @staticmethod
     def name() -> str:

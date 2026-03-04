@@ -4,7 +4,11 @@ from decimal import Decimal
 
 from geoip2.database import City, Reader
 
-from detectors.base import BaseDetector
+from detectors.base import (
+    BaseDetector,
+    BlockingReason,
+    IPLogMixing
+)
 from utils.datatypes import User
 from utils.logger import logger
 
@@ -19,7 +23,9 @@ class CityStats:
     total_requests: Decimal = Decimal(0)
 
 
-class GeoIPDetector(BaseDetector):
+class GeoIPDetector(IPLogMixing, BaseDetector):
+    blocking_reason = BlockingReason.geo
+
     def __init__(
         self,
         *args,

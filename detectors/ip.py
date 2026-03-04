@@ -1,11 +1,16 @@
-from detectors.base import SQLBasedDetector
+from detectors.base import (
+    SQLBasedDetector,
+    BlockingReason,
+    IPLogMixing
+)
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
 
 
-class IPRPSDetector(SQLBasedDetector):
+class IPRPSDetector(IPLogMixing, SQLBasedDetector):
+    blocking_reason = BlockingReason.rps
 
     @staticmethod
     def name() -> str:
@@ -47,6 +52,7 @@ class IPRPSDetector(SQLBasedDetector):
 
 
 class IPErrorRequestDetector(IPRPSDetector):
+    blocking_reason = BlockingReason.errors
 
     def __init__(self, *args, allowed_statues: list[int] = (), **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,6 +83,7 @@ class IPErrorRequestDetector(IPRPSDetector):
 
 
 class IPAccumulativeTimeDetector(IPRPSDetector):
+    blocking_reason = BlockingReason.accum_time
 
     @staticmethod
     def name() -> str:

@@ -1,4 +1,7 @@
+import ipaddress
 from dataclasses import dataclass
+from typing import Optional
+from ipaddress import IPv6Address
 
 from clickhouse_connect import get_async_client
 from clickhouse_connect.driver import AsyncClient
@@ -6,6 +9,18 @@ from clickhouse_connect.driver import AsyncClient
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
+
+
+@dataclass
+class BlockedUser:
+    reason: int
+    timestamp: float
+    address: Optional[ipaddress.IPv6Address] = IPv6Address('::')
+    tft: Optional[int] = 0
+    tfh: Optional[int] = 0
+
+    def as_tuple(self):
+        return self.address, self.tft, self.tfh, self.reason, self.timestamp * 1000
 
 
 @dataclass
@@ -109,3 +124,31 @@ class ClickhouseAccessLog:
 
     async def access_log_truncate(self):
         return await self.conn.query("truncate table access_log")
+
+    async def blocked_users_create_table(self):
+        return await self.conn.query(
+            """
+            create table if not exists blocked_users (
+                address IPv6,
+                tft UInt64,
+                tfh UInt64,
+                reason UInt64,
+                timestamp DateTime(3, 'UTC'),
+                PRIMARY KEY(timestamp)
+            )
+            """
+        )
+
+    async def blocked_users_drop_table(self):
+        return await self.conn.query("drop table blocked_users")
+
+    async def blocked_users_add(self, blocked_users: list[BlockedUser]):
+        await self.conn.insert(
+            table='blocked_users',
+            data=[blocked_user.as_tuple() for blocked_user in blocked_users],
+            column_names=["address", "tft", "tfh", "reason", "timestamp"]
+        )
+
+    async def blocked_users_get_all(self) -> list[BlockedUser]:
+        data = await self.conn.query("select * from blocked_users")
+        return [BlockedUser(**user) for user in data.named_results()]

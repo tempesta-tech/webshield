@@ -1,12 +1,15 @@
 import abc
 import asyncio
+import enum
 import math
 import typing
 from decimal import Decimal
 
 from clickhouse_connect.driver import AsyncClient
+from clickhouse_connect.driver.query import QueryResult
+from clickhouse_connect.driverc.dataconv import datetime
 
-from utils.access_log import ClickhouseAccessLog
+from utils.access_log import ClickhouseAccessLog, BlockedUser
 from utils.datatypes import User
 
 __author__ = "Tempesta Technologies, Inc."
@@ -16,7 +19,16 @@ __license__ = "GPL2"
 from utils.logger import logger
 
 
+class BlockingReason(int, enum.Enum):
+    rps: int = 0
+    errors: int = 1
+    accum_time: int = 2
+    geo: int = 3
+
+
 class BaseDetector(metaclass=abc.ABCMeta):
+    blocking_reason: BlockingReason
+
     def __init__(
         self,
         access_log: ClickhouseAccessLog,
@@ -202,6 +214,18 @@ class BaseDetector(metaclass=abc.ABCMeta):
         logger.debug(f"{self.name()} has new threshold {self.threshold} ="
                      f" {arithmetic_mean}(mean) + {standard_deviation}(std.dev.)")
 
+    @abc.abstractmethod
+    def convert_to_log_db_record(self, user: User, reason: int, current_time: float) -> BlockedUser:
+        """
+        Convert the received access logs into db records
+        with blocking users. As access logs could be
+        fetched and aggregated by some direct
+        field like ip address of tft hash, we might
+        to create blocking log also exactly by this field.
+        As a result, we should have logs with exactly one
+        installed value at the same time - tft/tfh or ip.
+        """
+
 
 class SQLBasedDetector(BaseDetector):
     @abc.abstractmethod
@@ -235,3 +259,31 @@ class SQLBasedDetector(BaseDetector):
             )
             for user in response.result_rows
         ]
+
+
+
+class IPLogMixing:
+    def convert_to_log_db_record(self, user: User, reason: int, current_time: float) -> BlockedUser:
+        return BlockedUser(
+            reason=reason,
+            address=user.ip[0],
+            timestamp=current_time,
+        )
+
+
+class TFtLogMixing:
+    def convert_to_log_db_record(self, user: User, reason: int, current_time: float) -> BlockedUser:
+        return BlockedUser(
+            reason=reason,
+            tft=int(user.tft[0], base=16),
+            timestamp=current_time,
+        )
+
+
+class TFhLogMixing:
+    def convert_to_log_db_record(self, user: User, reason: int, current_time: float) -> BlockedUser:
+        return BlockedUser(
+            reason=reason,
+            tfh=int(user.tfh[0], base=16),
+            timestamp=current_time,
+        )
