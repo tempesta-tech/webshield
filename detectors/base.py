@@ -6,17 +6,15 @@ import typing
 from decimal import Decimal
 
 from clickhouse_connect.driver import AsyncClient
-from clickhouse_connect.driver.query import QueryResult
-from clickhouse_connect.driverc.dataconv import datetime
 
 from utils.access_log import ClickhouseAccessLog, BlockedUser
 from utils.datatypes import User
+from utils.logger import logger
+
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
-
-from utils.logger import logger
 
 
 class BlockingReason(int, enum.Enum):

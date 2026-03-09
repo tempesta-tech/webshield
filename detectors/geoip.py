@@ -82,6 +82,7 @@ class GeoIPDetector(IPLogMixing, BaseDetector):
                 WHERE 
                     timestamp >= toDateTime64({start_at}, 3, 'UTC')
                     and timestamp < {finish_at}
+                    and not dictHas('bots_white_list_trie', al.address)
             )
             SELECT 
                 groupUniqArray(tft) tft, 

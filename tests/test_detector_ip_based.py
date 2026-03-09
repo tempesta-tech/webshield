@@ -1,5 +1,5 @@
 from decimal import Decimal
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, ip_network
 
 import pytest
 
@@ -172,6 +172,42 @@ async def test_time_with_persistent_users(access_log):
     detector = IPAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
+        intersection_percent=Decimal("10"),
+    )
+    users_before, users_after = await detector.find_users(
+        current_time=1751535010, interval=5
+    )
+    assert users_before == []
+    assert users_after == []
+
+
+async def test_rps_with_allowed_bots_missed_ip(access_log):
+    await access_log.bot_white_list_insert(
+        [ip_network("127.0.0.188/32")],
+    )
+    await access_log.bot_white_list_ip_trie_refresh()
+
+    detector = IPRPSDetector(
+        access_log=access_log,
+        default_threshold=Decimal("2"),
+        intersection_percent=Decimal("10"),
+    )
+    users_before, users_after = await detector.find_users(
+        current_time=1751535010, interval=5
+    )
+    assert users_before == []
+    assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
+
+
+async def test_rps_with_allowed_bots(access_log):
+    await access_log.bot_white_list_insert(
+        [ip_network("127.0.0.3/32")],
+    )
+    await access_log.bot_white_list_ip_trie_refresh()
+
+    detector = IPRPSDetector(
+        access_log=access_log,
+        default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(

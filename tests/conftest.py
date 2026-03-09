@@ -10,12 +10,17 @@ async def access_log() -> ClickhouseAccessLog:
     await _access_log.connect()
     await _access_log.user_agents_table_create()
     await _access_log.persistent_users_table_create()
+    await _access_log.bot_white_list_create_table()
+    await _access_log.bot_white_list_ip_trie_create()
+    await _access_log.bot_white_list_ip_trie_refresh()
 
     yield _access_log
 
     await _access_log.access_log_truncate()
     await _access_log.user_agents_table_truncate()
     await _access_log.persistent_users_table_truncate()
+    await _access_log.bot_white_list_truncate()
+    await _access_log.bot_white_list_ip_trie_refresh()
     await _access_log.conn.close()
 
 
