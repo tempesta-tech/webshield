@@ -41,8 +41,10 @@ async def user_agent_file_path() -> str:
 
 @pytest.fixture
 async def app_context(access_log, user_agent_empty_file_path) -> AppContext:
-    await access_log.conn.query("drop table user_agents")
-    await access_log.conn.query("drop table persistent_users")
+    await access_log.conn.query("drop table if exists user_agents")
+    await access_log.conn.query("drop table if exists persistent_users")
+    await access_log.conn.query("drop dictionary if exists bots_white_list_trie")
+    await access_log.conn.query("drop table if exists bots_white_list")
 
     class FakeBlocker(BaseBlocker):
         def __init__(self):
@@ -88,11 +90,14 @@ async def app_context(access_log, user_agent_empty_file_path) -> AppContext:
 
     await access_log.user_agents_table_create()
     await access_log.persistent_users_table_create()
+    await access_log.bot_white_list_create_table()
+    await access_log.bot_white_list_ip_trie_create()
 
 
 @pytest.fixture
 async def lifespan(access_log, app_context) -> Initialization:
     lifespan = Initialization(context=app_context)
+    lifespan.context.app_config.bots_white_list_allowed = []
     yield lifespan
 
 
@@ -145,8 +150,17 @@ async def test_user_agents_loading(
 
 
 async def test_user_agents_loading_skip(access_log, app_context, lifespan):
-    app_context.app_config.allowed_user_agents_file_path = False
+    app_context.app_config.bots_white_list_allowed = []
     await lifespan.run()
 
     result = await access_log.user_agents_all()
     assert len(result.result_rows) == 0
+
+
+async def test_bot_white_list_loading(access_log, app_context, lifespan):
+    lifespan.context.app_config.bots_white_list_allowed = ['google']
+    await lifespan.run()
+
+    result = await access_log.bot_white_list_all()
+    assert len(result.result_rows) > 0
+    assert len(result.result_rows[0][0]) > 5, 'Invalid CIDR'

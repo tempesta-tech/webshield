@@ -5,6 +5,7 @@ from core.context import AppContext
 from utils.access_log import BlockedUser
 from utils.datatypes import User
 from utils.logger import logger
+from utils.white_bots import get_list_of_white_listed_bot_networks
 
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
@@ -47,6 +48,11 @@ class Initialization(BaseState):
         await self.context.clickhouse_client.persistent_users_table_create()
         await self.context.clickhouse_client.persistent_users_table_truncate()
         await self.context.clickhouse_client.blocked_users_create_table()
+        await self.context.clickhouse_client.bot_white_list_create_table()
+        await self.context.clickhouse_client.bot_white_list_truncate()
+        await self.context.clickhouse_client.bot_white_list_ip_trie_create()
+        await self.context.clickhouse_client.bot_white_list_ip_trie_refresh()
+
         logger.debug("Prepared tables.")
 
     async def _load_whitelisted_user_agents(self):
@@ -60,10 +66,27 @@ class Initialization(BaseState):
             f"`{len(self.context.user_agent_manager.user_agents)}`"
         )
 
+    async def _load_whitelisted_bots(self):
+        if not self.context.app_config.bots_white_list_allowed:
+            return
+
+        white_ip_nets = await get_list_of_white_listed_bot_networks(
+            allowed_sources=self.context.app_config.bots_white_list_allowed,
+            logger=logger,
+            external_module_file_paths=list(self.context.app_config.bots_white_list_external_sources)
+        )
+
+        if not white_ip_nets:
+            return logger.info('No available list of bots networks')
+
+        await self.context.clickhouse_client.bot_white_list_insert(white_ip_nets)
+        logger.info(f'Loaded total {len(white_ip_nets)} white bots nets')
+
     async def run(self, **__) -> None:
         self._initialize_blockers()
         await self._establish_clickhouse_connection()
         await self._load_whitelisted_user_agents()
+        await self._load_whitelisted_bots()
 
 
 class LoadPersistentUsers(BaseState):

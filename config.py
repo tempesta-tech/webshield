@@ -1,3 +1,4 @@
+import typing
 from decimal import Decimal
 from typing import Literal
 
@@ -150,6 +151,9 @@ class AppConfig(BaseSettings):
     allowed_user_agents_file_path: str = (
         "/etc/tempesta-webshield/allow_user_agents.txt"
     )
+    bots_white_list_allowed: set[typing.Literal['google']] = ('google', )
+    bots_white_list_external_sources: set[str] = ()
+
     log_level: str = "INFO"
 
     @classmethod

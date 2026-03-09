@@ -1,6 +1,6 @@
 import os
 from decimal import Decimal
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, ip_network
 
 import pytest
 
@@ -152,3 +152,38 @@ async def test_update_thresholds(detector, additional_logs):
 
     detector.update_threshold(users=after)
     assert detector.threshold == Decimal(8.0)
+
+
+async def test_find_with_whitelisted_bots_missed_ip(detector, additional_logs, access_log):
+    await access_log.bot_white_list_insert(
+        [ip_network("127.0.0.188/32")],
+    )
+    await access_log.bot_white_list_ip_trie_refresh()
+
+    await detector.prepare()
+    detector.threshold = Decimal(1)
+
+    before, after = await detector.find_users(current_time=1751535030, interval=10)
+
+    assert len(before) == 2
+    assert len(after) == 1
+
+    blocked = detector.validate_model(users_before=before, users_after=after)
+
+    assert len(blocked) == 1
+    assert blocked[0].ip[0] == IPv4Address("79.143.107.10")
+
+
+async def test_find_with_whitelisted_bots(detector, additional_logs, access_log):
+    await access_log.bot_white_list_insert(
+        [ip_network("79.143.107.10/32")],
+    )
+    await access_log.bot_white_list_ip_trie_refresh()
+
+    await detector.prepare()
+    detector.threshold = Decimal(1)
+
+    before, after = await detector.find_users(current_time=1751535030, interval=10)
+
+    assert len(before) == 1
+    assert len(after) == 0

@@ -6,6 +6,9 @@ from ipaddress import IPv6Address
 from clickhouse_connect import get_async_client
 from clickhouse_connect.driver import AsyncClient
 
+from utils.white_bots import IPv4or6Network
+
+
 __author__ = "Tempesta Technologies, Inc."
 __copyright__ = "Copyright (C) 2023-2025 Tempesta Technologies, Inc."
 __license__ = "GPL2"
@@ -152,3 +155,48 @@ class ClickhouseAccessLog:
     async def blocked_users_get_all(self) -> list[BlockedUser]:
         data = await self.conn.query("select * from blocked_users")
         return [BlockedUser(**user) for user in data.named_results()]
+
+    async def bot_white_list_create_table(self):
+        return await self.conn.query(
+            """
+            create table if not exists bots_white_list (
+                cidr String,
+                PRIMARY KEY(cidr)
+            )
+            """
+        )
+
+    async def bot_white_list_truncate(self):
+        return await self.conn.query("truncate table bots_white_list")
+
+    async def bot_white_list_insert(self, values: list[IPv4or6Network]):
+        return await self.conn.insert(
+            table='bots_white_list',
+            data=[[str(cidr)] for cidr in values],
+            column_names=["cidr"]
+        )
+
+    async def bot_white_list_all(self):
+        return await self.conn.query(
+            """
+            SELECT *
+            FROM bots_white_list
+            """
+        )
+
+    async def bot_white_list_ip_trie_create(self):
+        return await self.conn.query(
+            """
+            create dictionary if not exists bots_white_list_trie
+            (
+                cidr     String,
+            )
+            primary key cidr
+            source(clickhouse(table bots_white_list))
+            layout(IP_TRIE)
+            lifetime(0);
+            """
+        )
+
+    async def bot_white_list_ip_trie_refresh(self):
+        return await self.conn.query('SYSTEM RELOAD DICTIONARY bots_white_list_trie;')
