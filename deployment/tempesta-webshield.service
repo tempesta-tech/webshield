@@ -9,8 +9,8 @@ Restart=always
 RestartSec=5
 User=root
 KillSignal=SIGQUIT
-WorkingDirectory=/opt/tempesta-webshield/source
-ExecStart=/opt/tempesta-webshield/venv/bin/python app.py
+WorkingDirectory=/opt/tempesta/webshield/source
+ExecStart=/opt/tempesta/webshield/venv/bin/python app.py
 NotifyAccess=all
 
 [Install]

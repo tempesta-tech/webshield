@@ -12,7 +12,7 @@ __version__ = "0.1.1"
 
 @dataclass
 class CommandLineArgs:
-    config: str = "/etc/tempesta-webshield/app.env"
+    config: str = "/etc/tempesta/webshield/app.env"
     log_level: str = "INFO"
     verify: bool = False
 
@@ -27,7 +27,7 @@ class CommandLineArgs:
 Tempesta WebShield {__version__} (this version is experimental and should not be used in production).
 Dynamically analyzes web traffic and blocks bad bots.
 """,
-            epilog="./app.py --config=/etc/tempesta-webshield/config.env",
+            epilog="./app.py --config=/etc/tempesta/webshield/config.env",
             formatter_class=argparse.RawDescriptionHelpFormatter,
             add_help=True,
         )
@@ -35,7 +35,7 @@ Dynamically analyzes web traffic and blocks bad bots.
             "-c",
             "--config",
             type=str,
-            default="/etc/tempesta-webshield/app.env",
+            default="/etc/tempesta/webshield/app.env",
             help="Path to the config file",
         )
         parser.add_argument(
