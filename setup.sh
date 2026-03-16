@@ -1,17 +1,17 @@
 #!/bin/bash
 
-INSTALL_PATH=/opt/tempesta-webshield
+INSTALL_PATH=/opt/tempesta/webshield
 SOURCE_DIR=$INSTALL_PATH/source
 PYTHON_REQUIREMENTS=$SOURCE_DIR/requirements.txt
 PYTHON_VENV=$INSTALL_PATH/venv
 PYTHON_ENV_ACTIVATE=$PYTHON_VENV/bin/activate
-CONFIG_DIR=/etc/tempesta-webshield
+CONFIG_DIR=/etc/tempesta/webshield
 CONFIG_SRC_PATH=$SOURCE_DIR/example.env
 CONFIG_DST_PATH=$CONFIG_DIR/app.env
 ALLOWED_USERS_DST_PATH=$CONFIG_DIR/allow_user_agents.txt
 SYSTEMD_SERVICE_SRC_PATH=$SOURCE_DIR/deployment/tempesta-webshield.service
 SYSTEMD_SERVICE_DST_PATH=/etc/systemd/system/tempesta-webshield.service
-TEMPESTA_CONFIG_DIR=/etc/tempesta
+TEMPESTA_CONFIG_DIR=/etc/tempesta/fw
 TEMPESTA_TFT_DIR=$TEMPESTA_CONFIG_DIR/tft
 TEMPESTA_TFH_DIR=$TEMPESTA_CONFIG_DIR/tfh
 

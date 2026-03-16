@@ -10,8 +10,8 @@ __license__ = "GPL2"
 
 
 class AppConfig(BaseSettings):
-    path_to_tft_config: str = "/etc/tempesta/tft/blocked.conf"
-    path_to_tfh_config: str = "/etc/tempesta/tfh/blocked.conf"
+    path_to_tft_config: str = "/etc/tempesta/fw/tft/blocked.conf"
+    path_to_tfh_config: str = "/etc/tempesta/fw/tfh/blocked.conf"
 
     clickhouse_host: str = "127.0.0.1"
     clickhouse_port: int = 8123
@@ -142,14 +142,14 @@ class AppConfig(BaseSettings):
     detector_geoip_intersection_percent: Decimal = Decimal(10)
     detector_geoip_block_users_per_iteration: Decimal = Decimal(10)
     detector_geoip_path_allowed_cities_list: str = (
-        "/etc/tempesta-webshield/allowed_cities.txt"
+        "/etc/tempesta/webshield/allowed_cities.txt"
     )
-    detector_geoip_path_to_db: str = "/etc/tempesta-webshield/city.db"
+    detector_geoip_path_to_db: str = "/etc/tempesta/webshield/city.db"
 
     tempesta_executable_path: str = ""
     tempesta_config_path: str = ""
     allowed_user_agents_file_path: str = (
-        "/etc/tempesta-webshield/allow_user_agents.txt"
+        "/etc/tempesta/webshield/allow_user_agents.txt"
     )
     bots_white_list_allowed: set[typing.Literal['google']] = ('google', )
     bots_white_list_external_sources: set[str] = ()
