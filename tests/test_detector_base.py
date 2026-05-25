@@ -46,7 +46,7 @@ def test_threshold(detector):
 
 
 async def test_find_users(detector):
-    await detector.find_users(0, 10)
+    await detector.find_users((-30, -20), (-10, 0))
     assert detector.groups == [[-30, -20], [-10, 0]]
 
 

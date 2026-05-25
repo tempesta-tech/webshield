@@ -154,12 +154,17 @@ class HistoricalModeTraining(BaseState):
             )
             detector.threshold = arithmetic_mean + standard_deviation
 
-    async def run(self, **__):
+    def get_data_window(self) -> tuple[int, int]:
         now = self.context.utc_now
-        await self._update_thresholds(
-            start_at=now - self.context.app_config.training_mode_duration_sec,
-            finish_at=now,
-        )
+
+        start_at = now - self.context.app_config.training_mode_history_offset_sec
+        finish_at = start_at + self.context.app_config.training_mode_duration_sec
+
+        return start_at, finish_at
+
+    async def run(self, **__):
+        start_at, finish_at = self.get_data_window()
+        await self._update_thresholds(start_at=start_at, finish_at=finish_at)
 
 
 class RealModeTraining(HistoricalModeTraining):
@@ -170,6 +175,12 @@ class RealModeTraining(HistoricalModeTraining):
 
     async def _collect_data(self):
         await asyncio.sleep(self.context.app_config.training_mode_duration_sec)
+
+    def get_data_window(self) -> tuple[int, int]:
+        now = self.context.utc_now
+        finish_at = now + self.context.app_config.training_mode_duration_sec
+
+        return now, finish_at
 
     async def run(self, **__):
         await self._collect_data()
@@ -222,11 +233,23 @@ class BackgroundRiskyUsersMonitoring(BaseState):
         current_time = self.context.utc_now
         detectors = self.context.active_detectors
 
+        previous_window_start = current_time - self.context.app_config.blocking_previous_window_offset_sec
+        previous_window_finish = previous_window_start + self.context.app_config.blocking_previous_window_duration_sec
+
+        new_window_start = current_time - self.context.app_config.blocking_new_window_offset_sec
+        new_window_finish = new_window_start + self.context.app_config.blocking_new_window_duration_sec
+
         users_bulks = await asyncio.gather(
             *[
                 detector.find_users(
-                    current_time=current_time,
-                    interval=self.context.app_config.blocking_window_duration_sec,
+                    previous_window_interval=(
+                        previous_window_start,
+                        previous_window_finish
+                    ),
+                    new_window_interval=(
+                        new_window_start,
+                        new_window_finish
+                    )
                 )
                 for detector in detectors
             ]
@@ -268,7 +291,7 @@ class BackgroundRiskyUsersMonitoring(BaseState):
 
         while True:
             asyncio.create_task(self._update_threshold_and_block_users())
-            await asyncio.sleep(self.context.app_config.blocking_window_duration_sec)
+            await asyncio.sleep(self.context.app_config.blocking_check_timeout_sec)
 
 
 class BackgroundReleaseUsersMonitoring(BaseState):

@@ -40,13 +40,18 @@ class AppConfig(BaseSettings):
     ] = {"tft_rps", "tft_time", "tft_errors"}
 
     blocking_types: set[Literal["tft", "tfh", "ipset", "nftables"]] = {"tft"}
-    blocking_window_duration_sec: int = 10
+    blocking_previous_window_offset_sec: int = 30
+    blocking_previous_window_duration_sec: int = 10
+    blocking_new_window_offset_sec: int = 10
+    blocking_new_window_duration_sec: int = 10
+    blocking_check_timeout_sec: int = 10
     blocking_ipset_name: str = "tempesta_blocked_ips"
     blocking_time_min: int = 60
     blocking_release_time_min: int = 1
 
     training_mode: Literal["off", "historical", "real"] = "off"
-    training_mode_duration_min: int = 10
+    training_mode_duration_sec: int = 600
+    training_mode_history_offset_sec: int = 600
 
     detector_ip_rps_default_threshold: Decimal = Decimal(10)
     detector_ip_rps_intersection_percent: Decimal = Decimal(10)
@@ -160,10 +165,6 @@ class AppConfig(BaseSettings):
     def read(cls, path: str) -> str:
         with open(path, "r") as f:
             return f.read()
-
-    @property
-    def training_mode_duration_sec(self) -> int:
-        return self.training_mode_duration_min * 60
 
     @property
     def persistent_users_window_offset_sec(self) -> int:

@@ -29,14 +29,33 @@ async def data(access_log):
     )
 
 
-async def test_rps(access_log):
+@pytest.fixture
+def previous_window() -> tuple[int, int]:
+    current_time = 1751535010
+    previous_window_start = current_time - 15
+    previous_window_finish = previous_window_start + 5
+
+    return previous_window_start, previous_window_finish
+
+
+@pytest.fixture
+def new_window() -> tuple[int, int]:
+    current_time = 1751535010
+    new_window_start = current_time - 5
+    new_window_finish = new_window_start + 5
+
+    return new_window_start, new_window_finish
+
+
+async def test_rps(access_log, previous_window, new_window):
     detector = TFhRPSDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert len(users_after) == 1
@@ -47,7 +66,7 @@ async def test_rps(access_log):
     }
 
 
-async def test_rps_with_user_agents(access_log):
+async def test_rps_with_user_agents(access_log, previous_window, new_window):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent4"]])
     detector = TFhRPSDetector(
         access_log=access_log,
@@ -55,13 +74,14 @@ async def test_rps_with_user_agents(access_log):
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == [User(tft=['d'], tfh=['17'], ip=[IPv4Address("127.0.0.3")])]
 
 
-async def test_rps_with_persistent_users(access_log):
+async def test_rps_with_persistent_users(access_log, previous_window, new_window):
     await access_log.persistent_users_table_insert(
         [
             ["127.0.0.3"],
@@ -73,13 +93,14 @@ async def test_rps_with_persistent_users(access_log):
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == []
 
 
-async def test_errors(access_log):
+async def test_errors(access_log, previous_window, new_window):
     detector = TFhErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
@@ -87,7 +108,8 @@ async def test_errors(access_log):
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == [
@@ -99,7 +121,7 @@ async def test_errors(access_log):
     ]
 
 
-async def test_errors_with_user_agents(access_log):
+async def test_errors_with_user_agents(access_log, previous_window, new_window):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent3"]])
     detector = TFhErrorRequestDetector(
         access_log=access_log,
@@ -108,7 +130,8 @@ async def test_errors_with_user_agents(access_log):
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert len(users_after) == 1
@@ -119,7 +142,7 @@ async def test_errors_with_user_agents(access_log):
     }
 
 
-async def test_errors_with_persistent_users(access_log):
+async def test_errors_with_persistent_users(access_log, previous_window, new_window):
     await access_log.persistent_users_table_insert(
         [
             ["127.0.0.3"],
@@ -132,13 +155,14 @@ async def test_errors_with_persistent_users(access_log):
         allowed_statues=[300],
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == []
 
 
-async def test_errors_forbidden_statuses(access_log):
+async def test_errors_forbidden_statuses(access_log, previous_window, new_window):
     detector = TFhErrorRequestDetector(
         access_log=access_log,
         default_threshold=Decimal("2"),
@@ -146,20 +170,22 @@ async def test_errors_forbidden_statuses(access_log):
         allowed_statues=[200],
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == []
 
 
-async def test_time(access_log):
+async def test_time(access_log, previous_window, new_window):
     detector = TFhAccumulativeTimeDetector(
         access_log=access_log,
         default_threshold=Decimal("15"),
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert len(users_after) == 1
@@ -170,7 +196,7 @@ async def test_time(access_log):
     }
 
 
-async def test_time_with_user_agents(access_log):
+async def test_time_with_user_agents(access_log, previous_window, new_window):
     await access_log.user_agents_table_insert([["UserAgent"], ["UserAgent3"]])
     detector = TFhAccumulativeTimeDetector(
         access_log=access_log,
@@ -178,7 +204,8 @@ async def test_time_with_user_agents(access_log):
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert len(users_after) == 1
@@ -189,7 +216,7 @@ async def test_time_with_user_agents(access_log):
     }
 
 
-async def test_time_with_persistent_users(access_log):
+async def test_time_with_persistent_users(access_log, previous_window, new_window):
     await access_log.persistent_users_table_insert(
         [
             ["127.0.0.3"],
@@ -201,7 +228,8 @@ async def test_time_with_persistent_users(access_log):
         intersection_percent=Decimal("10"),
     )
     users_before, users_after = await detector.find_users(
-        current_time=1751535010, interval=5
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
     )
     assert users_before == []
     assert users_after == []
