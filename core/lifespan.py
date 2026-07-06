@@ -213,10 +213,6 @@ class BackgroundRiskyUsersMonitoring(BaseState):
         Periodically run the detectors, identify risky users, and update
         their thresholds on previous time slice (users_before) and block by
         values for the current time slice (users_after).
-
-        TODO: this method handles TRAINING_MODE="off" case, so intuitivelly we
-        should not learn from traffic and just introduce a configuration for an
-        expected traffic, e.g. DETECTOR_IP_RPS_DEFAULT_MEAN=100.
         """
 
         current_time = self.context.utc_now
@@ -237,7 +233,9 @@ class BackgroundRiskyUsersMonitoring(BaseState):
 
         for detector, user_bulk in zip(detectors, users_bulks):
             users_before, users_after = user_bulk
-            detector.update_threshold(users_before)
+
+            if self.context.app_config.training_mode != 'off':
+                detector.update_threshold(users_before)
 
             users_to_block = detector.validate_model(
                 users_before=users_before,

@@ -61,11 +61,16 @@ async def app_context(access_log):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.passed_time = []
+            self.threshold_updated = False
 
         async def fetch_for_period(self, start_at: int, finish_at: int) -> list[User]:
             self.passed_time.append((start_at, finish_at))
             head, *self.groups = self.groups
             return head
+
+        def update_threshold(self, users: list[User]):
+            super().update_threshold(users)
+            self.threshold_updated = True
 
     class FakeDetector(IPLogMixing, BaseFakeDetector):
         blocking_reason = BlockingReason.rps
@@ -141,7 +146,11 @@ async def app_context(access_log):
             ),
         },
         clickhouse_client=access_log,
-        app_config=AppConfig(detectors={"ip_rps", "ip_time", "ip_errors"}, blocking_types={"ipset"}),
+        app_config=AppConfig(
+            detectors={"ip_rps", "ip_time", "ip_errors"},
+            blocking_types={"ipset"},
+            training_mode='real'
+        ),
     )
     yield context
 
@@ -209,3 +218,25 @@ async def test_blocked_users_logs(app_context, lifespan, blocking_table, access_
     assert blocked_users[2].tft == 531
     assert blocked_users[2].tfh == 0
     assert blocked_users[2].timestamp == as_datetime
+
+
+async def test_thresholds_are_updated(
+        app_context, lifespan, blocking_table, access_log
+):
+    await lifespan.run(testing=True)
+    assert len(lifespan.context.active_detectors) > 0
+
+    for detector in lifespan.context.active_detectors:
+        assert detector.threshold_updated is True
+
+
+async def test_thresholds_updates_turned_off(
+        app_context, lifespan, blocking_table, access_log
+):
+    lifespan.context.app_config.training_mode = 'off'
+
+    await lifespan.run(testing=True)
+    assert len(lifespan.context.active_detectors) > 0
+
+    for detector in lifespan.context.active_detectors:
+        assert detector.threshold_updated is False
