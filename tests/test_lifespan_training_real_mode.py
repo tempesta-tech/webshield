@@ -4,7 +4,7 @@ import pytest
 
 from config import AppConfig
 from core.context import AppContext
-from core.lifespan import HistoricalModeTraining
+from core.lifespan import RealModeTraining
 from detectors.base import BaseDetector, IPLogMixing
 from utils.datatypes import User
 
@@ -15,19 +15,11 @@ __license__ = "GPL2"
 
 @pytest.fixture
 def app_config():
-    class FlexibleTimeAppConfig(AppConfig):
-
-        def __init__(self, *args, **kwargs):
-            super(FlexibleTimeAppConfig, self).__init__(*args, **kwargs)
-
-            self._duration_sec = 0
-
-        @property
-        def training_mode_duration_sec(self):
-            return self._duration_sec
-
-    _config = FlexibleTimeAppConfig(detectors={"ip_rps", "ip_time"})
-    yield _config
+    return AppConfig(
+        detectors={"ip_rps", "ip_time"},
+        training_mode_duration_sec=0,
+        training_mode_history_offset_sec=0
+    )
 
 
 @pytest.fixture
@@ -95,7 +87,7 @@ def app_context(access_log, app_config):
 
 @pytest.fixture
 def lifespan(app_context):
-    obj = HistoricalModeTraining(context=app_context)
+    obj = RealModeTraining(context=app_context)
     yield obj
 
 
@@ -105,18 +97,18 @@ def test_active_detectors(app_context):
 
 async def test_time_frame_before(app_context, lifespan):
     app_context.time = 1751535010
-    app_context.app_config._duration_sec = 1
+    app_context.app_config.training_mode_duration_sec = 1
 
     await lifespan.run()
 
     assert app_context.detectors["ip_rps"].threshold.quantize(
         Decimal("0.01")
     ) == Decimal("2.82")
-    assert app_context.detectors["ip_rps"].start_at == 1751535009
-    assert app_context.detectors["ip_rps"].finish_at == 1751535010
+    assert app_context.detectors["ip_rps"].start_at == 1751535010
+    assert app_context.detectors["ip_rps"].finish_at == 1751535011
 
     assert app_context.detectors["ip_time"].threshold.quantize(
         Decimal("0.01")
     ) == Decimal("281.65")
-    assert app_context.detectors["ip_rps"].start_at == 1751535009
-    assert app_context.detectors["ip_rps"].finish_at == 1751535010
+    assert app_context.detectors["ip_rps"].start_at == 1751535010
+    assert app_context.detectors["ip_rps"].finish_at == 1751535011

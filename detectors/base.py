@@ -81,8 +81,10 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """
 
     async def find_users(
-        self, current_time: int, interval: int
-    ) -> [list[User], list[User]]:
+            self,
+            previous_window_interval: tuple[int, int],
+            new_window_interval: tuple[int, int],
+    ) -> tuple[list[User], list[User]]:
         """
         Get two groups of the most risky users for different time periods
         for further analysis.
@@ -90,16 +92,19 @@ class BaseDetector(metaclass=abc.ABCMeta):
         Use 1 time slice gap to eliminate races, when a user appears at the
         border between the time slices.
 
-        :param current_time: used as the current time in functional tests
-        :param interval: used as the current time in functional tests
+        :param previous_window_interval: control group of the access log data
+        :param new_window_interval: new group of the access log data with the
+            potentially risky users
         :return: list of risky users
         """
         return await asyncio.gather(
             self.fetch_for_period(
-                start_at=current_time - 3 * interval, finish_at=current_time - 2 * interval
+                start_at=previous_window_interval[0],
+                finish_at=previous_window_interval[1]
             ),
             self.fetch_for_period(
-                start_at=current_time - interval, finish_at=current_time
+                start_at=new_window_interval[0],
+                finish_at=new_window_interval[1]
             ),
         )
 

@@ -60,10 +60,10 @@ class BaseWhiteIpListSource:
 class GoogleWhiteIpListSource(BaseWhiteIpListSource):
     name = 'google'
     urls = [
-        "https://developers.google.com/static/search/apis/ipranges/googlebot.json",
-        "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json",
-        "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json",
-        "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
+        "https://developers.google.com/crawling/ipranges/googlebot.json",
+        "https://developers.google.com/crawling/ipranges/special-crawlers.json",
+        "https://developers.google.com/crawling/ipranges/user-triggered-fetchers.json",
+        "https://developers.google.com/crawling/ipranges/user-triggered-fetchers-google.json"
     ]
 
     async def get_resource(self, client: aiohttp.ClientSession, url: str) -> list[GoogleWhiteListIpRecord]:
@@ -76,7 +76,13 @@ class GoogleWhiteIpListSource(BaseWhiteIpListSource):
                 return []
 
             decoded_response = await response.json()
-            return decoded_response['prefixes']
+            data = decoded_response.get('prefixes')
+
+            if not data:
+                self.logger.warning(f'Can not decode response data: {decoded_response}')
+                return []
+
+            return data
 
 
     async def get_resources(self) -> typing.List[GoogleWhiteListIpRecord]:

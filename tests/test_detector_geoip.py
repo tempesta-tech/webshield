@@ -86,6 +86,24 @@ async def additional_logs(access_log):
     )
 
 
+@pytest.fixture
+def previous_window() -> tuple[int, int]:
+    current_time = 1751535030
+    previous_window_start = current_time - 30
+    previous_window_finish = previous_window_start + 10
+
+    return previous_window_start, previous_window_finish
+
+
+@pytest.fixture
+def new_window() -> tuple[int, int]:
+    current_time = 1751535030
+    new_window_start = current_time - 10
+    new_window_finish = new_window_start + 10
+
+    return new_window_start, new_window_finish
+
+
 async def test_prepare_no_city_list(detector: GeoIPDetector):
     os.remove(detector.path_to_allowed_cities_list)
 
@@ -102,9 +120,13 @@ async def test_prepare_no_geodb(detector: GeoIPDetector):
         assert "GeoIP database was not found" in str(error)
 
 
-async def test_find_low_rps(detector):
+async def test_find_low_rps(detector, previous_window, new_window):
     await detector.prepare()
-    before, after = await detector.find_users(current_time=1751535030, interval=10)
+
+    before, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
     assert len(before) == 1
     assert len(after) == 0
 
@@ -112,11 +134,14 @@ async def test_find_low_rps(detector):
     assert blocked == []
 
 
-async def test_find(detector, additional_logs):
+async def test_find(detector, additional_logs, previous_window, new_window):
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535030, interval=10)
+    before, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
 
     assert len(before) == 2
     assert len(after) == 1
@@ -127,14 +152,17 @@ async def test_find(detector, additional_logs):
     assert blocked[0].ip[0] == IPv4Address("79.143.107.10")
 
 
-async def test_find_allowed_city(detector, additional_logs):
+async def test_find_allowed_city(detector, additional_logs, previous_window, new_window):
     with open(detector.path_to_allowed_cities_list, "w") as f:
         f.write("Podgorica")
 
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535030, interval=10)
+    before, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
 
     assert len(before) == 2
     assert len(after) == 1
@@ -143,18 +171,23 @@ async def test_find_allowed_city(detector, additional_logs):
     assert blocked == []
 
 
-async def test_update_thresholds(detector, additional_logs):
+async def test_update_thresholds(detector, additional_logs, previous_window, new_window):
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    _, after = await detector.find_users(current_time=1751535030, interval=10)
+    _, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
     assert len(after) == 1
 
     detector.update_threshold(users=after)
     assert detector.threshold == Decimal(8.0)
 
 
-async def test_find_with_whitelisted_bots_missed_ip(detector, additional_logs, access_log):
+async def test_find_with_whitelisted_bots_missed_ip(
+        detector, additional_logs, access_log, previous_window, new_window
+):
     await access_log.bot_white_list_insert(
         [ip_network("127.0.0.188/32")],
     )
@@ -163,7 +196,10 @@ async def test_find_with_whitelisted_bots_missed_ip(detector, additional_logs, a
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535030, interval=10)
+    before, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
 
     assert len(before) == 2
     assert len(after) == 1
@@ -174,7 +210,9 @@ async def test_find_with_whitelisted_bots_missed_ip(detector, additional_logs, a
     assert blocked[0].ip[0] == IPv4Address("79.143.107.10")
 
 
-async def test_find_with_whitelisted_bots(detector, additional_logs, access_log):
+async def test_find_with_whitelisted_bots(
+        detector, additional_logs, access_log, previous_window, new_window
+):
     await access_log.bot_white_list_insert(
         [ip_network("79.143.107.10/32")],
     )
@@ -183,7 +221,10 @@ async def test_find_with_whitelisted_bots(detector, additional_logs, access_log)
     await detector.prepare()
     detector.threshold = Decimal(1)
 
-    before, after = await detector.find_users(current_time=1751535030, interval=10)
+    before, after = await detector.find_users(
+        previous_window_interval=previous_window,
+        new_window_interval=new_window
+    )
 
     assert len(before) == 1
     assert len(after) == 0

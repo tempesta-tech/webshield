@@ -15,19 +15,11 @@ __license__ = "GPL2"
 
 @pytest.fixture
 def app_config():
-    class FlexibleTimeAppConfig(AppConfig):
-
-        def __init__(self, *args, **kwargs):
-            super(FlexibleTimeAppConfig, self).__init__(*args, **kwargs)
-
-            self._duration_sec = 0
-
-        @property
-        def training_mode_duration_sec(self):
-            return self._duration_sec
-
-    config = FlexibleTimeAppConfig(detectors={"ip_rps", "ip_time"})
-    yield config
+    return AppConfig(
+        detectors={"ip_rps", "ip_time"},
+        training_mode_duration_sec=0,
+        training_mode_history_offset_sec=0
+    )
 
 
 @pytest.fixture
@@ -105,7 +97,8 @@ def test_active_detectors(app_context):
 
 async def test_time_frame_before(app_context, lifespan):
     app_context.time = 1751535010
-    app_context.app_config._duration_sec = 10
+    app_context.app_config.training_mode_duration_sec = 10
+    app_context.app_config.training_mode_history_offset_sec = 10
 
     await lifespan.run()
 
