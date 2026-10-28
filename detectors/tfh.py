@@ -71,7 +71,7 @@ class TFhErrorRequestDetector(TFhRPSDetector):
 
 
 class TFhAccumulativeTimeDetector(TFhRPSDetector):
-    blocking_reason = BlockingReason.errors
+    blocking_reason = BlockingReason.accum_time
 
     @staticmethod
     def name() -> str:
