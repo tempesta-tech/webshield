@@ -88,7 +88,7 @@ class IPAccumulativeTimeDetector(IPRPSDetector):
 
     @staticmethod
     def name() -> str:
-        return "ip_accumulative_time"
+        return "ip_time"
 
     def get_request(self, start_at, finish_at):
         return self.shared_filter(
