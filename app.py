@@ -151,7 +151,7 @@ async def main(app_config):
                 intersection_percent=app_config.detector_tfh_time_intersection_percent,
                 block_users_per_iteration=app_config.detector_tfh_time_block_users_per_iteration,
             ),
-            TFhErrorRequestDetector.name(): TFtErrorRequestDetector(
+            TFhErrorRequestDetector.name(): TFhErrorRequestDetector(
                 access_log=clickhouse_client,
                 default_threshold=app_config.detector_tfh_errors_default_threshold,
                 intersection_percent=app_config.detector_tfh_errors_intersection_percent,
